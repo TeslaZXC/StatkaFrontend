@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
+import { Link } from "react-router-dom";
 
 const PlayerDetails = () => {
   const { name } = useParams();
@@ -43,7 +44,20 @@ const PlayerDetails = () => {
             : "∞"}
         </td>
         </tr>
-          <tr className="border-b border-zinc-700"><td className="p-2 font-semibold">Отряд:</td><td className="p-2">{playerData.squad}</td></tr>
+          <tr className="border-b border-zinc-700"><td className="p-2 font-semibold">Отряд:</td>
+          <td className="p-2">
+            {playerData.squad ? (
+              <Link
+                to={`/squad-stat/${encodeURIComponent(playerData.squad)}`}
+                className="text-inherit hover:underline"
+              >
+                {playerData.squad}
+              </Link>
+            ) : (
+              "-"
+            )}
+          </td>
+          </tr>
         </tbody>
       </table>
 

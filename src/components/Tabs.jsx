@@ -9,6 +9,7 @@ const tabs = [
   { id: "player-stat", label: "📊 Статистика игроков", route: "/player-stat" },
   { id: "player-top", label: "👑 Топ игроков", route: "/player-top" },
   { id: "squad-top", label: "🏆 Топ отрядов", route: "/squad-top" },
+  { id: "squad-top", label: "😎 Хорошая кнопка", route: "/squad-top" }
 ];
 
 const Tabs = () => {
