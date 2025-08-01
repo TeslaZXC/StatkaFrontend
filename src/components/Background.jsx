@@ -4,11 +4,10 @@ const Background = ({ image = "/bg.jpg", blur = 20, children }) => {
   return (
     <div className="relative min-h-screen overflow-hidden text-light">
       <div
-        className="absolute inset-0 bg-cover bg-center scale-110"
+        className="fixed top-0 left-0 w-full h-full bg-cover bg-center z-0"
         style={{
           backgroundImage: `url('${image}')`,
           filter: `blur(${blur}px)`,
-          transition: "filter 0.3s ease",
         }}
       />
 

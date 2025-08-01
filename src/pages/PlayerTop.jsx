@@ -45,10 +45,11 @@ const PlayerTop = () => {
 
   return (
     <div className="overflow-x-auto p-4">
-      <h2 className="text-2xl font-bold text-accent mb-4"></h2>
+      <h2 className="text-2xl font-bold text-accent mb-4">🏆 Топ игроков</h2>
       <table className="min-w-full text-sm text-left border border-zinc-700">
         <thead className="bg-zinc-800 text-light">
           <tr>
+            <th className="p-2">#</th>
             <th className="p-2 cursor-pointer" onClick={() => handleSort("name")}>Игрок</th>
             <th className="p-2 cursor-pointer" onClick={() => handleSort("frags")}>Frags</th>
             <th className="p-2 cursor-pointer" onClick={() => handleSort("deaths")}>Deaths</th>
@@ -63,6 +64,7 @@ const PlayerTop = () => {
               className="border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer"
               onClick={() => handlePlayerClick(player.name)}
             >
+              <td className="p-2 text-zinc-400">{index + 1}</td>
               <td className="p-2 font-bold text-accent">{player.name}</td>
               <td className="p-2">{player.frags}</td>
               <td className="p-2">{player.deaths}</td>

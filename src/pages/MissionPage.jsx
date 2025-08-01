@@ -26,7 +26,7 @@ const MissionPage = () => {
   const [playerSortOrder, setPlayerSortOrder] = useState("desc");
 
   const [expandedPlayer, setExpandedPlayer] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
 
   const extractName = (fullName) => {
     const match = fullName.match(/(?:[\]\. ]+)([^ ]+)$/);
@@ -89,7 +89,14 @@ const MissionPage = () => {
         <tbody>
           {sortedSquads.filter(s => s.side === side).map((s, idx) => (
             <tr key={`squad-${idx}`} className="border-t border-zinc-700">
-              <td className="p-2 font-bold text-accent">{s.squad}</td>
+            <td className="p-2 font-bold text-accent">
+            <Link
+            to={`/squad-stat/${encodeURIComponent(s.squad)}`}
+            className="text-red-500 font-bold hover:text-red-400"
+          >
+            {s.squad}
+          </Link>
+            </td>
               <td className="p-2">{s.frags}</td>
               <td className="p-2">{s.deaths}</td>
               <td className="p-2">{s.players}</td>
@@ -107,6 +114,16 @@ const MissionPage = () => {
       <div className="grid md:grid-cols-2 gap-6">
         <SquadTable title="EAST Side" side="EAST" />
         <SquadTable title="WEST Side" side="WEST" />
+      </div>
+
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="🔍 Поиск по имени..."
+          className="p-2 bg-zinc-800 border border-zinc-600 rounded w-full text-white"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       <h3 className="text-xl font-bold text-accent mt-8 mb-2">Игроки</h3>
@@ -129,13 +146,26 @@ const MissionPage = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedPlayers.map((p, idx) => (
+          {sortedPlayers
+            .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .map((p, idx) => (
             <React.Fragment key={`player-${idx}`}>
               <tr className="border-t border-zinc-700">
               <td className="p-2 font-bold text-accent">
                 <Link to={`/player/${extractName(p.name)}`}>{p.name}</Link>
               </td>
-                <td className="p-2">{p.squad}</td>
+              <td className="p-2">
+                {p.squad ? (
+                  <Link
+                    to={`/squad-stat/${encodeURIComponent(p.squad)}`}
+                    className="text-blue-400 underline hover:text-blue-300"
+                  >
+                    {p.squad}
+                  </Link>
+                ) : (
+                  "-"
+                )}
+                </td>
                 <td className="p-2">{p.side}</td>
                 <td className="p-2">{p.frags}</td>
                 <td className="p-2">{p.teamkills}</td>

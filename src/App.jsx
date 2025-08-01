@@ -9,6 +9,7 @@ import PlayerDetails from "./pages/PlayerDetails";
 import PlayerStats from "./pages/PlayerStats"; 
 import MissionList from "./pages/MissionList";
 import MissionPage from './pages/MissionPage'
+import SquadStats from "./pages/SquadStats";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/mission/:id" element={<MissionPage />} />
         <Route path="/player-stat" element={<PlayerStats />} />
         <Route path="/missions" element={<MissionList />} />
+        <Route path="/squad-stat/:name" element={<SquadStats />} />
       </Route>
     </Routes>
   );
