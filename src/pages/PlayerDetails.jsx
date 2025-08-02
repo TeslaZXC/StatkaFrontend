@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
-import { Link } from "react-router-dom";
 
 const PlayerDetails = () => {
   const { name } = useParams();
@@ -12,7 +11,19 @@ const PlayerDetails = () => {
   const [showKills, setShowKills] = useState(false);
   const [showDeaths, setShowDeaths] = useState(false);
 
+  const extractName = (fullName) => {
+    const match = fullName.match(/(?:[\]\. ]+)([^ ]+)$/);
+    return match ? match[1] : fullName;
+  };
+
   useEffect(() => {
+    // Reset toggles when switching players
+    setShowMissions(false);
+    setShowKills(false);
+    setShowDeaths(false);
+    setLoading(true);
+    setPlayerData(null);
+
     axios
       .get(`https://restfully-winsome-malamute.cloudpub.ru/api/player-stat/${name}`)
       .then((res) => {
@@ -34,61 +45,68 @@ const PlayerDetails = () => {
 
       <table className="min-w-full max-w-xl text-sm text-left border border-zinc-700 mb-6">
         <tbody>
-          <tr className="border-b border-zinc-700"><td className="p-2 font-semibold">Фраги:</td><td className="p-2">{playerData.frags}</td></tr>
-          <tr className="border-b border-zinc-700"><td className="p-2 font-semibold">Смерти:</td><td className="p-2">{playerData.deaths}</td></tr>
           <tr className="border-b border-zinc-700">
-        <td className="p-2 font-semibold">K/D:</td>
-        <td className="p-2">
-            {playerData.deaths > 0
-            ? (playerData.frags / playerData.deaths).toFixed(4)
-            : "∞"}
-        </td>
-        </tr>
-          <tr className="border-b border-zinc-700"><td className="p-2 font-semibold">Отряд:</td>
-          <td className="p-2">
-            {playerData.squad ? (
-              <Link
-                to={`/squad-stat/${encodeURIComponent(playerData.squad)}`}
-                className="text-inherit hover:underline"
-              >
-                {playerData.squad}
-              </Link>
-            ) : (
-              "-"
-            )}
-          </td>
+            <td className="p-2 font-semibold">Фраги:</td>
+            <td className="p-2">{playerData.frags}</td>
+          </tr>
+          <tr className="border-b border-zinc-700">
+            <td className="p-2 font-semibold">Смерти:</td>
+            <td className="p-2">{playerData.deaths}</td>
+          </tr>
+          <tr className="border-b border-zinc-700">
+            <td className="p-2 font-semibold">K/D:</td>
+            <td className="p-2">
+              {playerData.deaths > 0
+                ? (playerData.frags / playerData.deaths).toFixed(4)
+                : "∞"}
+            </td>
+          </tr>
+          <tr className="border-b border-zinc-700">
+            <td className="p-2 font-semibold">Отряд:</td>
+            <td className="p-2">
+              {playerData.squad ? (
+                <Link
+                  to={`/squad-stat/${encodeURIComponent(playerData.squad)}`}
+                  className="text-inherit hover:underline"
+                >
+                  {playerData.squad}
+                </Link>
+              ) : (
+                "-"
+              )}
+            </td>
           </tr>
         </tbody>
       </table>
 
-    {Array.isArray(playerData.missions) && (
-    <div className="mb-6">
-        <button
-        onClick={() => setShowMissions(!showMissions)}
-        className="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm mb-2"
-        >
-        {showMissions ? "Скрыть миссии" : "Показать миссии"}
-        </button>
-        {showMissions && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            {playerData.missions.map((mission, idx) => {
-            const filename = decodeURIComponent(
-                mission.split("?filename=")[1].split("&")[0]
-            );
-            return (
-                <button
-                key={idx}
-                onClick={() => (window.location.href = `/mission/${filename}`)}
-                className="bg-zinc-800 hover:bg-zinc-700 text-light text-xs px-3 py-2 rounded text-left break-words"
-                >
-                {filename}
-                </button>
-            );
-            })}
+      {Array.isArray(playerData.missions) && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowMissions(!showMissions)}
+            className="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm mb-2"
+          >
+            {showMissions ? "Скрыть миссии" : "Показать миссии"}
+          </button>
+          {showMissions && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {playerData.missions.map((mission, idx) => {
+                const filename = decodeURIComponent(
+                  mission.split("?filename=")[1].split("&")[0]
+                );
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => (window.location.href = `/mission/${filename}`)}
+                    className="bg-zinc-800 hover:bg-zinc-700 text-light text-xs px-3 py-2 rounded text-left break-words"
+                  >
+                    {filename}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-        )}
-    </div>
-    )}
+      )}
 
       {Array.isArray(playerData.kills_detailed) && (
         <div className="mb-6">
@@ -112,7 +130,14 @@ const PlayerDetails = () => {
                 {playerData.kills_detailed.map((kill, idx) => (
                   <tr key={idx} className="border-t border-zinc-700">
                     <td className="p-2">{kill.time}</td>
-                    <td className="p-2">{kill.target}</td>
+                    <td className="p-2">
+                      <Link
+                        to={`/player/${extractName(kill.target)}`}
+                        className="hover:underline"
+                      >
+                        {kill.target}
+                      </Link>
+                    </td>
                     <td className="p-2">{kill.distance}</td>
                     <td className="p-2">{kill.weapon}</td>
                   </tr>
@@ -145,7 +170,14 @@ const PlayerDetails = () => {
                 {playerData.death_detailed.map((death, idx) => (
                   <tr key={idx} className="border-t border-zinc-700">
                     <td className="p-2">{death.time}</td>
-                    <td className="p-2">{death.target}</td>
+                    <td className="p-2">
+                      <Link
+                        to={`/player/${extractName(death.target)}`}
+                        className="hover:underline"
+                      >
+                        {death.target}
+                      </Link>
+                    </td>
                     <td className="p-2">{death.distance}</td>
                     <td className="p-2">{death.weapon}</td>
                   </tr>

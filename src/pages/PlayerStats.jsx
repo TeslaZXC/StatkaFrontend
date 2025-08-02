@@ -29,13 +29,13 @@ const PlayerStats = () => {
         axios
           .get(`https://restfully-winsome-malamute.cloudpub.ru/api/player-search/${encodeURIComponent(playerName)}`)
           .then((res) => {
-            setSuggestions(res.data.slice(0, 5)); // не больше 5
+            setSuggestions(res.data.slice(0, 5));
           })
           .catch(() => setSuggestions([]));
       } else {
         setSuggestions([]);
       }
-    }, 300); // debounce: 300ms
+    }, 300); 
 
     return () => clearTimeout(delayDebounce);
   }, [playerName]);

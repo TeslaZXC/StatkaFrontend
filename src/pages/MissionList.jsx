@@ -21,7 +21,6 @@ const MissionList = () => {
         setMissions(res.data);
         setFilteredMissions(res.data);
 
-        // Собрать уникальные карты
         const uniqueMaps = [
           ...new Set(res.data.map((mission) => mission.map)),
         ].sort();
@@ -79,7 +78,6 @@ const MissionList = () => {
     <div className="p-4">
       <h2 className="text-2xl font-bold text-accent mb-4">📅 Список миссий</h2>
 
-      {/* Фильтры */}
       <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <input
           type="text"
@@ -122,7 +120,6 @@ const MissionList = () => {
         />
       </div>
 
-      {/* Список миссий */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMissions.map((mission) => (
           <div

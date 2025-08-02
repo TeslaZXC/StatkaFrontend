@@ -33,6 +33,19 @@ const MissionPage = () => {
     return match ? match[1] : fullName;
   };
 
+  const getSideColor = (side) => {
+    switch (side) {
+      case "EAST":
+        return "text-blue-400";
+      case "WEST":
+        return "text-red-400";
+      case "GUER":
+        return "text-green-400";
+      default:
+        return "text-white";
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,7 +108,7 @@ const MissionPage = () => {
         <tbody>
           {sortedSquads.filter(s => s.side === side).map((s, idx) => (
             <tr key={`squad-${idx}`} className="border-t border-zinc-700">
-              <td className="p-2 font-bold text-accent">
+              <td className={`p-2 font-bold ${getSideColor(s.side)}`}>
                 <Link to={`/squad-stat/${encodeURIComponent(s.squad)}`} className="hover:underline">
                   {s.squad}
                 </Link>
@@ -163,7 +176,7 @@ const MissionPage = () => {
             .map((p, idx) => (
               <React.Fragment key={`player-${idx}`}>
                 <tr className="border-t border-zinc-700">
-                  <td className="p-2 font-bold text-accent">
+                  <td className={`p-2 font-bold ${getSideColor(p.side)}`}>
                     <Link to={`/player/${extractName(p.name)}`}>{p.name}</Link>
                   </td>
                   <td className="p-2">
@@ -178,7 +191,7 @@ const MissionPage = () => {
                       "-"
                     )}
                   </td>
-                  <td className="p-2">{p.side}</td>
+                  <td className={`p-2 font-semibold ${getSideColor(p.side)}`}>{p.side}</td>
                   <td className="p-2">{p.frags}</td>
                   <td className="p-2">{p.teamkills}</td>
                   <td className="p-2">{p.vehicle_kills}</td>

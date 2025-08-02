@@ -62,8 +62,7 @@ const PlayerTop = () => {
             <tr
               key={`player-${index}`}
               className="border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer"
-              onClick={() => handlePlayerClick(player.name)}
-            >
+              onClick={() => handlePlayerClick(player.name)}>
               <td className="p-2 text-zinc-400">{index + 1}</td>
               <td className="p-2 font-bold text-accent">{player.name}</td>
               <td className="p-2">{player.frags}</td>

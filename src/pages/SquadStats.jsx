@@ -9,7 +9,6 @@ const SquadStats = () => {
   const [playersStats, setPlayersStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Получение общей статистики отряда
   useEffect(() => {
     const fetchSquadStats = async () => {
       try {
@@ -36,7 +35,6 @@ const SquadStats = () => {
 
         const results = await Promise.all(playerRequests);
 
-        // Сортировка по K/D
         results.sort((a, b) => parseFloat(b.kd) - parseFloat(a.kd));
 
         setPlayersStats(results);
