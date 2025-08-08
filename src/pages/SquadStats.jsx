@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
+import SquadInfo from "../components/SquadStats/SquadInfo";
+import SquadMembersTable from "../components/SquadStats/SquadMembersTable";
 
 const SquadStats = () => {
   const { name } = useParams();
@@ -12,7 +14,9 @@ const SquadStats = () => {
   useEffect(() => {
     const fetchSquadStats = async () => {
       try {
-        const res = await axios.get(`https://restfully-winsome-malamute.cloudpub.ru/api/squad-stat/${name}`);
+        const res = await axios.get(
+          `https://restfully-winsome-malamute.cloudpub.ru/api/squad-stat/${name}`
+        );
         setSquadData(res.data);
 
         const playerRequests = res.data.members.map(async (playerName) => {
@@ -29,14 +33,12 @@ const SquadStats = () => {
             frags,
             deaths,
             kd,
-            rawName: p.name
+            rawName: p.name,
           };
         });
 
         const results = await Promise.all(playerRequests);
-
         results.sort((a, b) => parseFloat(b.kd) - parseFloat(a.kd));
-
         setPlayersStats(results);
       } catch (err) {
         console.error("Ошибка при получении данных:", err);
@@ -49,44 +51,18 @@ const SquadStats = () => {
   }, [name]);
 
   if (loading) return <Loader />;
-
   if (!squadData) return <p>Ошибка загрузки данных отряда</p>;
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-4 text-accent">📘 Статистика отряда: {squadData.name}</h1>
+      <h1 className="text-3xl font-bold mb-4 text-accent">
+        📘 Статистика отряда: {squadData.name}
+      </h1>
 
-      <div className="mb-6 space-y-2">
-        <p><strong>Фраги:</strong> {squadData.frags}</p>
-        <p><strong>Смерти:</strong> {squadData.deaths}</p>
-        <p><strong>K/D:</strong> {squadData.score}</p>
-        <p><strong>Средняя посещаемость:</strong> {squadData.average_attendance}</p>
-      </div>
+      <SquadInfo squad={squadData} />
 
       <h2 className="text-xl font-semibold mb-2">👥 Участники:</h2>
-
-      <table className="min-w-full text-sm border border-zinc-700">
-        <thead className="bg-zinc-800">
-          <tr>
-            <th className="p-2">Игрок</th>
-            <th className="p-2">Фраги</th>
-            <th className="p-2">Смерти</th>
-            <th className="p-2">K/D</th>
-          </tr>
-        </thead>
-        <tbody>
-          {playersStats.map((p, idx) => (
-            <tr key={idx} className="border-t border-zinc-700 hover:bg-zinc-800">
-              <td className="p-2 text-accent font-medium">
-                <Link to={`/player/${p.rawName}`}>{p.fullName}</Link>
-              </td>
-              <td className="p-2">{p.frags}</td>
-              <td className="p-2">{p.deaths}</td>
-              <td className="p-2">{p.kd}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <SquadMembersTable players={playersStats} />
     </div>
   );
 };

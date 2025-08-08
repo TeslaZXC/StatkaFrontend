@@ -1,6 +1,6 @@
 import React from "react";
 
-const Background = ({ image = "/bg.jpg", blur = 20, children }) => {
+const Background = ({ image = "/bg.jpg", blur = 1, children }) => {
   return (
     <div className="relative min-h-screen overflow-hidden text-light">
       <div

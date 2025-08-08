@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
 import Loader from "../components/Loader";
+import MissionFilters from "../components/MissionList/MissionFilters";
+import MissionCard from "../components/MissionList/MissionCard";
 
 const MissionList = () => {
   const [missions, setMissions] = useState([]);
@@ -21,11 +24,8 @@ const MissionList = () => {
         setMissions(res.data);
         setFilteredMissions(res.data);
 
-        const uniqueMaps = [
-          ...new Set(res.data.map((mission) => mission.map)),
-        ].sort();
+        const uniqueMaps = [...new Set(res.data.map((m) => m.map))].sort();
         setMapOptions(uniqueMaps);
-
         setLoading(false);
       })
       .catch((err) => {
@@ -64,8 +64,7 @@ const MissionList = () => {
 
     if (minDurationMinutes.trim()) {
       filtered = filtered.filter(
-        (m) =>
-          parseDurationToMinutes(m.duration) >= parseInt(minDurationMinutes)
+        (m) => parseDurationToMinutes(m.duration) >= parseInt(minDurationMinutes)
       );
     }
 
@@ -78,65 +77,23 @@ const MissionList = () => {
     <div className="p-4">
       <h2 className="text-2xl font-bold text-accent mb-4">📅 Список миссий</h2>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="🔍 Поиск по имени миссии"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-3 py-2 rounded bg-zinc-800 text-light border border-zinc-600"
-        />
-        <select
-          value={mapFilter}
-          onChange={(e) => setMapFilter(e.target.value)}
-          className="px-3 py-2 rounded bg-zinc-800 text-light border border-zinc-600"
-        >
-          <option value="">🗺️ Все карты</option>
-          {mapOptions.map((map) => (
-            <option key={map} value={map}>
-              {map}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          placeholder="👥 Мин. игроков"
-          value={minPlayers}
-          onChange={(e) => setMinPlayers(e.target.value)}
-          className="px-3 py-2 rounded bg-zinc-800 text-light border border-zinc-600"
-        />
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="px-3 py-2 rounded bg-zinc-800 text-light border border-zinc-600"
-        />
-        <input
-          type="number"
-          placeholder="⏱️ Мин. время (мин)"
-          value={minDurationMinutes}
-          onChange={(e) => setMinDurationMinutes(e.target.value)}
-          className="px-3 py-2 rounded bg-zinc-800 text-light border border-zinc-600"
-        />
-      </div>
+      <MissionFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        mapFilter={mapFilter}
+        setMapFilter={setMapFilter}
+        mapOptions={mapOptions}
+        minPlayers={minPlayers}
+        setMinPlayers={setMinPlayers}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        minDurationMinutes={minDurationMinutes}
+        setMinDurationMinutes={setMinDurationMinutes}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMissions.map((mission) => (
-          <div
-            key={mission.id}
-            className="bg-zinc-800 border border-zinc-700 rounded p-4 hover:shadow-md"
-          >
-            <h3
-              className="text-lg font-bold text-accent hover:underline cursor-pointer"
-              onClick={() => window.location.href = `/mission/${mission.id}`}
-            >
-              {mission.mission_name}
-            </h3>
-            <p className="text-sm text-light mt-1">🗺️ Карта: {mission.map}</p>
-            <p className="text-sm text-light">👥 Игроков: {mission.total_players}</p>
-            <p className="text-sm text-light">🕒 Длительность: {mission.duration}</p>
-            <p className="text-sm text-light">📅 Дата: {mission.date}</p>
-          </div>
+          <MissionCard key={mission.id} mission={mission} />
         ))}
       </div>
     </div>

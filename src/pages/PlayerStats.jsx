@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PlayerSearchInput from "../components/PlayerStats/PlayerSearchInput";
+import SuggestionList from "../components/PlayerStats/SuggestionList";
 
 const PlayerStats = () => {
   const [playerName, setPlayerName] = useState("");
@@ -35,7 +37,7 @@ const PlayerStats = () => {
       } else {
         setSuggestions([]);
       }
-    }, 300); 
+    }, 300);
 
     return () => clearTimeout(delayDebounce);
   }, [playerName]);
@@ -45,27 +47,15 @@ const PlayerStats = () => {
       <h2 className="text-2xl font-bold text-accent mb-4">🔍 Поиск игрока</h2>
       <div className="flex flex-col sm:flex-row items-center gap-2 w-full max-w-md relative">
         <div className="w-full relative">
-          <input
-            type="text"
-            placeholder="Введите имя игрока"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="w-full px-4 py-2 rounded bg-zinc-800 text-light border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent"
+          <PlayerSearchInput
+            playerName={playerName}
+            setPlayerName={setPlayerName}
+            handleKeyDown={handleKeyDown}
           />
-          {suggestions.length > 0 && (
-            <ul className="absolute z-10 w-full bg-zinc-800 border border-zinc-600 rounded mt-1 max-h-40 overflow-y-auto">
-              {suggestions.map((name, idx) => (
-                <li
-                  key={idx}
-                  onClick={() => handleSuggestionClick(name)}
-                  className="px-4 py-2 cursor-pointer hover:bg-zinc-700 text-light text-sm"
-                >
-                  {name}
-                </li>
-              ))}
-            </ul>
-          )}
+          <SuggestionList
+            suggestions={suggestions}
+            onSelect={handleSuggestionClick}
+          />
         </div>
         <button
           onClick={handleSearch}
