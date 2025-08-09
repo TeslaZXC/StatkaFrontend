@@ -29,7 +29,7 @@ const PlayerStats = () => {
     const delayDebounce = setTimeout(() => {
       if (playerName.length > 1) {
         axios
-          .get(`https://restfully-winsome-malamute.cloudpub.ru/api/player-search/${encodeURIComponent(playerName)}`)
+          .get(`http://147.45.219.240:8000/api/player-search/${encodeURIComponent(playerName)}`)
           .then((res) => {
             setSuggestions(res.data.slice(0, 5));
           })

@@ -1,10 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 const SquadMemberRow = ({ player }) => (
   <tr className="border-t border-zinc-700 hover:bg-zinc-800">
     <td className="p-2 text-accent font-medium">
-      <Link to={`/player/${player.rawName}`}>{player.fullName}</Link>
+      <a
+        href={`/player/${player.rawName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:underline"
+      >
+        {player.fullName}
+      </a>
     </td>
     <td className="p-2">{player.frags}</td>
     <td className="p-2">{player.deaths}</td>

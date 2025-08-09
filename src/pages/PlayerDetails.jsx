@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
 import PlayerStatsTable from "../components/PlayerDetails/PlayerStatsTable";
-import MissionsList from "../components/PlayerDetails/MissionsList";
 import KillsTable from "../components/PlayerDetails/KillsTable";
 import DeathsTable from "../components/PlayerDetails/DeathsTable";
 
@@ -17,7 +16,7 @@ const PlayerDetails = () => {
     setPlayerData(null);
 
     axios
-      .get(`https://restfully-winsome-malamute.cloudpub.ru/api/player-stat/${name}`)
+      .get(`http://147.45.219.240:8000/api/player-stat/${encodeURIComponent(name)}`)
       .then((res) => {
         setPlayerData(res.data);
         setLoading(false);
@@ -33,11 +32,10 @@ const PlayerDetails = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold text-accent mb-6">👤 Профиль: {playerData.name}</h1>
+      <h1 className="text-3xl font-bold text-accent mb-6">👤 Профиль: {name}</h1>
       <PlayerStatsTable playerData={playerData} />
-      {Array.isArray(playerData.missions) && <MissionsList missions={playerData.missions} />}
-      {Array.isArray(playerData.kills_detailed) && <KillsTable kills={playerData.kills_detailed} />}
-      {Array.isArray(playerData.death_detailed) && <DeathsTable deaths={playerData.death_detailed} />}
+      {Array.isArray(playerData.victims) && <KillsTable kills={playerData.victims} />}
+      {Array.isArray(playerData.deaths) && <DeathsTable deaths={playerData.deaths} />}
     </div>
   );
 };

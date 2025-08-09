@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const extractName = (fullName) => {
-  const match = fullName.match(/(?:[\]\. ]+)([^ ]+)$/);
-  return match ? match[1] : fullName;
+  return fullName.replace(/^\[[^\]]+\]\s*/, "");
 };
 
 const KillsTable = ({ kills }) => {
@@ -21,7 +20,6 @@ const KillsTable = ({ kills }) => {
         <table className="min-w-full text-xs border border-zinc-700 mt-2">
           <thead className="bg-zinc-800 text-light">
             <tr>
-              <th className="p-2">⏱ Время</th>
               <th className="p-2">🎯 Цель</th>
               <th className="p-2">📏 Дистанция</th>
               <th className="p-2">🔫 Оружие</th>
@@ -30,13 +28,12 @@ const KillsTable = ({ kills }) => {
           <tbody>
             {kills.map((kill, idx) => (
               <tr key={idx} className="border-t border-zinc-700">
-                <td className="p-2">{kill.time}</td>
                 <td className="p-2">
                   <Link
-                    to={`/player/${extractName(kill.target)}`}
+                    to={`/player/${encodeURIComponent(extractName(kill.victim_name))}`}
                     className="hover:underline"
                   >
-                    {kill.target}
+                    {kill.victim_name}
                   </Link>
                 </td>
                 <td className="p-2">{kill.distance}</td>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const getSquadFromName = (name) => {
   if (!name) return "";
@@ -12,6 +13,12 @@ const getSquadFromName = (name) => {
   return "";
 };
 
+const extractName = (fullName) => {
+  return fullName
+    .replace(/^\[[^\]]+\]\s*/, "")    // Убираем тег в квадратных скобках в начале, например [LG]
+    .replace(/^[^\s\.]+[.\s]+/, ""); // Убираем тег типа DW. или DW в начале
+};
+
 const PlayerTable = ({
   players,
   sortField,
@@ -23,6 +30,7 @@ const PlayerTable = ({
 }) => {
   const [expandedVictims, setExpandedVictims] = useState({});
   const [expandedDeath, setExpandedDeath] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -49,9 +57,14 @@ const PlayerTable = ({
     setExpandedDeath((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const filteredPlayers = filterField
-    ? players.filter((p) => p[filterField] !== undefined && p[filterField] !== null)
-    : players;
+  const filteredPlayers = players
+    .filter((p) =>
+      p.player_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((p) => {
+      if (!filterField) return true;
+      return p[filterField] !== undefined && p[filterField] !== null;
+    });
 
   const sortedPlayers = [...filteredPlayers].sort((a, b) => {
     let aVal = a[sortField];
@@ -76,158 +89,213 @@ const PlayerTable = ({
   });
 
   return (
-    <div className="mt-8 rounded-lg shadow-lg bg-zinc-900/50 p-4 overflow-x-auto text-light">
-      <h3 className="text-xl font-bold mb-3 text-accent">Игроки</h3>
-      <table className="min-w-full border border-zinc-700 text-sm">
-        <thead className="bg-zinc-800 text-light select-none">
-          <tr>
-            {[
-              { field: "player_name", label: "Имя" },
-              { field: "side", label: "Сторона" },
-              { field: "frags", label: "Фраги" },
-              { field: "deaths", label: "Смерти" },
-              { field: "teamkills", label: "Тимкиллы" },
-              { field: "vehicle_kills", label: "Убийства техники" },
-              { field: "death", label: "Death" },
-              { field: "victims", label: "Victims" },
-              { field: "squad", label: "Отряд" },
-            ].map(({ field, label }) => (
-              <th
-                key={field}
-                className={`cursor-pointer px-3 py-2 border-b border-zinc-700 hover:text-accent ${
-                  field === "victims" || field === "death" ? "cursor-default" : ""
-                }`}
-                onClick={() => {
-                  if (field === "victims" || field === "death") return;
-                  handleSort(field);
-                  if (field === "player_name") handleFilter(null);
-                  else handleFilter(field);
-                }}
-              >
-                {label}{" "}
-                {sortField === field ? (sortOrder === "asc" ? "▲" : "▼") : ""}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedPlayers.length === 0 ? (
+    <div className="mt-8 rounded-lg shadow-lg bg-zinc-900/50 p-4 text-light">
+      <h3 className="text-xl font-bold mb-3 text-white">Игроки</h3>
+
+      {/* Поле поиска */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="🔍 Поиск по нику..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-3 py-2 rounded bg-zinc-800 text-light focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
+
+      {/* Фиксированный контейнер с прокруткой */}
+      <div className="max-h-[500px] overflow-y-auto border border-zinc-700 rounded">
+        <table className="min-w-full text-sm">
+          <thead className="bg-zinc-800 text-light select-none">
             <tr>
-              <td
-                colSpan="9"
-                className="text-center py-4 font-semibold text-accent"
-              >
-                Нет данных
-              </td>
+              {[
+                { field: "player_name", label: "Имя" },
+                { field: "side", label: "Сторона" },
+                { field: "frags", label: "Фраги" },
+                { field: "deaths", label: "Смерти" },
+                { field: "teamkills", label: "Тимкиллы" },
+                { field: "vehicle_kills", label: "Убийства техники" },
+                { field: "death", label: "Death" },
+                { field: "victims", label: "Victims" },
+                { field: "squad", label: "Отряд" },
+              ].map(({ field, label }) => (
+                <th
+                  key={field}
+                  className={`cursor-pointer px-3 py-2 border-b border-zinc-700 hover:text-accent ${
+                    field === "victims" || field === "death"
+                      ? "cursor-default"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (field === "victims" || field === "death") return;
+                    handleSort(field);
+                    if (field === "player_name") handleFilter(null);
+                    else handleFilter(field);
+                  }}
+                >
+                  {label}{" "}
+                  {sortField === field ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+                </th>
+              ))}
             </tr>
-          ) : (
-            sortedPlayers.map((player, idx) => {
-              const {
-                player_name,
-                side,
-                frags,
-                death,
-                deaths,
-                teamkills,
-                vehicle_kills,
-                victims,
-              } = player;
+          </thead>
+          <tbody>
+            {sortedPlayers.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="9"
+                  className="text-center py-4 font-semibold text-white"
+                >
+                  Нет данных
+                </td>
+              </tr>
+            ) : (
+              sortedPlayers.map((player, idx) => {
+                const {
+                  player_name,
+                  side,
+                  frags,
+                  death,
+                  deaths,
+                  teamkills,
+                  vehicle_kills,
+                  victims,
+                } = player;
 
-              const deathsCount = deaths ?? (death ? 1 : 0);
+                const deathsCount = deaths ?? (death ? 1 : 0);
+                const squadName = getSquadFromName(player_name);
 
-              return (
-                <React.Fragment key={idx}>
-                  <tr className="border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer">
-                    <td className="px-3 py-2">{player_name}</td>
-                    <td className="px-3 py-2">{side}</td>
-                    <td className="px-3 py-2">{frags}</td>
-                    <td className="px-3 py-2">{deathsCount}</td>
-                    <td className="px-3 py-2">{teamkills}</td>
-                    <td className="px-3 py-2">{vehicle_kills}</td>
-
-                    <td className="px-3 py-2 text-center">
-                      {death ? (
-                        <button
-                          onClick={() => toggleDeath(idx)}
-                          className="text-accent hover:text-accent/80 underline"
+                return (
+                  <React.Fragment key={idx}>
+                    <tr className="border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer">
+                      <td className="px-3 py-2">
+                        <Link
+                          to={`/player/${encodeURIComponent(
+                            extractName(player_name)
+                          )}`}
+                          target="_blank"
+                          className="hover:underline text-white"
                         >
-                          {expandedDeath[idx] ? "Скрыть" : "Показать"}
-                        </button>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
+                          {player_name}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2">{side}</td>
+                      <td className="px-3 py-2">{frags}</td>
+                      <td className="px-3 py-2">{deathsCount}</td>
+                      <td className="px-3 py-2">{teamkills}</td>
+                      <td className="px-3 py-2">{vehicle_kills}</td>
 
-                    <td className="px-3 py-2 text-center">
-                      {victims && victims.length > 0 ? (
-                        <button
-                          onClick={() => toggleVictims(idx)}
-                          className="text-accent hover:text-accent/80 underline"
+                      <td className="px-3 py-2 text-center">
+                        {death ? (
+                          <button
+                            onClick={() => toggleDeath(idx)}
+                            className="text-white hover:text-white/80 underline"
+                          >
+                            {expandedDeath[idx] ? "Скрыть" : "Показать"}
+                          </button>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      <td className="px-3 py-2 text-center">
+                        {victims && victims.length > 0 ? (
+                          <button
+                            onClick={() => toggleVictims(idx)}
+                            className="text-white hover:text-white/80 underline"
+                          >
+                            {expandedVictims[idx] ? "Скрыть" : "Показать"}
+                          </button>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      <td className="px-3 py-2">
+                        <a
+                          href={`/squad-stat/${encodeURIComponent(squadName)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white hover:underline"
                         >
-                          {expandedVictims[idx] ? "Скрыть" : "Показать"}
-                        </button>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
+                          {squadName}
+                        </a>
+                      </td>
+                    </tr>
 
-                    <td className="px-3 py-2">{getSquadFromName(player_name)}</td>
-                  </tr>
-
-                  {expandedVictims[idx] && victims && victims.length > 0 && (
-                    <tr className="bg-zinc-900/60">
-                      <td colSpan="9" className="p-3 border-b border-zinc-700">
-                        <table className="w-full border-collapse text-sm text-light">
-                          <thead>
-                            <tr className="bg-zinc-800">
-                              <th className="px-2 py-1 border border-zinc-700">Время</th>
-                              <th className="px-2 py-1 border border-zinc-700">Жертва</th>
-                              <th className="px-2 py-1 border border-zinc-700">Расстояние</th>
-                              <th className="px-2 py-1 border border-zinc-700">Оружие</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {victims.map((v, i) => (
-                              <tr
-                                key={i}
-                                className="hover:bg-zinc-800 cursor-default"
-                              >
-                                <td className="px-2 py-1 border border-zinc-700">{v.time}</td>
-                                <td className="px-2 py-1 border border-zinc-700">{v.victim_name}</td>
-                                <td className="px-2 py-1 border border-zinc-700">{v.distance}</td>
-                                <td className="px-2 py-1 border border-zinc-700">{v.weapon}</td>
+                    {expandedVictims[idx] && victims && victims.length > 0 && (
+                      <tr className="bg-zinc-900/60">
+                        <td colSpan="9" className="p-3 border-b border-zinc-700">
+                          <table className="w-full border-collapse text-sm text-light">
+                            <thead>
+                              <tr className="bg-zinc-800">
+                                <th className="px-2 py-1 border border-zinc-700">
+                                  Время
+                                </th>
+                                <th className="px-2 py-1 border border-zinc-700">
+                                  Жертва
+                                </th>
+                                <th className="px-2 py-1 border border-zinc-700">
+                                  Расстояние
+                                </th>
+                                <th className="px-2 py-1 border border-zinc-700">
+                                  Оружие
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  )}
+                            </thead>
+                            <tbody>
+                              {victims.map((v, i) => {
+                                const isTK = v.kill_type === "TK";
+                                return (
+                                  <tr
+                                    key={i}
+                                    className={`cursor-default ${
+                                      isTK
+                                        ? "bg-black text-white"
+                                        : "hover:bg-zinc-800"
+                                    }`}
+                                  >
+                                    <td className="px-2 py-1 border border-zinc-700">
+                                      {v.time}
+                                    </td>
+                                    <td className="px-2 py-1 border border-zinc-700">
+                                      {v.victim_name}{" "}
+                                      {isTK && "(тимкил)"}
+                                    </td>
+                                    <td className="px-2 py-1 border border-zinc-700">
+                                      {v.distance}
+                                    </td>
+                                    <td className="px-2 py-1 border border-zinc-700">
+                                      {v.weapon}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    )}
 
-                  {expandedDeath[idx] && death && (
-                    <tr className="bg-zinc-900/60">
-                      <td colSpan="9" className="p-3 border-b border-zinc-700">
-                        <div>
-                          <b>Время:</b> {death.time} <br />
-                          <b>Жертва:</b> {death.victim_name} <br />
-                          <b>Расстояние:</b> {death.distance} <br />
-                          <b>Оружие:</b> {death.weapon} <br />
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-
-      {filterField && (
-        <div className="mt-2 text-sm text-accent">
-          Фильтр по полю: <b>{filterField}</b> (кликните по заголовку чтобы сбросить)
-        </div>
-      )}
+                    {expandedDeath[idx] && death && (
+                      <tr className="bg-zinc-900/60">
+                        <td colSpan="9" className="p-3 border-b border-zinc-700">
+                          <div>
+                            <b>Время:</b> {death.time} <br />
+                            <b>Жертва:</b> {death.victim_name} <br />
+                            <b>Расстояние:</b> {death.distance} <br />
+                            <b>Оружие:</b> {death.weapon} <br />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

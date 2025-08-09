@@ -14,34 +14,37 @@ const SquadStats = () => {
   useEffect(() => {
     const fetchSquadStats = async () => {
       try {
+        setLoading(true);
+
         const res = await axios.get(
-          `https://restfully-winsome-malamute.cloudpub.ru/api/squad-stat/${name}`
+          `http://147.45.219.240:8000/api/squad-stat/${encodeURIComponent(name)}`
         );
         setSquadData(res.data);
 
-        const playerRequests = res.data.members.map(async (playerName) => {
-          const playerRes = await axios.get(
-            `https://restfully-winsome-malamute.cloudpub.ru/api/player-stat/${playerName}`
-          );
-          const p = playerRes.data;
-          const frags = p.frags || 0;
-          const deaths = p.deaths || 0;
-          const kd = deaths === 0 ? frags : (frags / deaths).toFixed(2);
+        const playersRes = await axios.get(
+          `http://147.45.219.240:8000/api/team-players?tag=${encodeURIComponent(name)}`
+        );
+
+        const players = playersRes.data.map(player => {
+          const frags = player.stats.frags;
+          const teamkills = player.stats.teamkills;
+          const deaths_count = player.stats.deaths_count;
+          const kd = deaths_count === 0 ? frags : (frags / deaths_count).toFixed(2);
 
           return {
-            fullName: `[${p.squad}] ${p.name}`,
+            rawName: player.name,
+            fullName: player.name,
             frags,
-            deaths,
+            teamkills,
+            deaths: deaths_count,
             kd,
-            rawName: p.name,
           };
         });
 
-        const results = await Promise.all(playerRequests);
-        results.sort((a, b) => parseFloat(b.kd) - parseFloat(a.kd));
-        setPlayersStats(results);
+        setPlayersStats(players);
       } catch (err) {
         console.error("Ошибка при получении данных:", err);
+        setPlayersStats([]);
       } finally {
         setLoading(false);
       }
