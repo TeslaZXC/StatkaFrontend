@@ -3,7 +3,7 @@ import axios from "axios";
 
 const OcapViewer = ({ missionId }) => {
   const [missionName, setMissionName] = useState("");
-  const [playLink, setPlayLink] = useState("");
+  const [ocapLink, setOcapLink] = useState("");
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -11,12 +11,12 @@ const OcapViewer = ({ missionId }) => {
     const fetchMissionInfo = async () => {
       try {
         const res = await axios.get(
-          `https://restfully-winsome-malamute.cloudpub.ru/api/mission-name/${missionId}`
+          `http://147.45.219.240:8000/api/mission-name/${missionId}`
         );
         const data = res.data?.mission_name;
         if (data) {
           setMissionName(data.mission_name || `Миссия #${missionId}`);
-          setPlayLink(data.play_link);
+          setOcapLink(data.ocap_link);
         }
       } catch (err) {
         console.error("Ошибка при загрузке mission_name:", err);
@@ -32,27 +32,25 @@ const OcapViewer = ({ missionId }) => {
 
   return (
     <div className="mb-8">
-    <div
+      <div
         className="cursor-pointer bg-blue-600 hover:bg-blue-700 border border-blue-700 rounded-lg px-4 py-2 mb-4 max-w-max mx-auto transition-all duration-200 text-base text-white text-center shadow"
         onClick={() => setIsOpen(!isOpen)}
-        >
+      >
         📽️ Открыть OCAP ({missionName})
-    </div>
+      </div>
 
-
-      {isOpen && playLink && (
+      {isOpen && ocapLink && (
         <div className="overflow-hidden transition-all duration-300">
-            <div className="relative w-full aspect-video rounded-lg shadow-lg border border-zinc-700">
+          <div className="relative w-full aspect-video rounded-lg shadow-lg border border-zinc-700">
             <iframe
-                src={playLink}
-                title="OCAP Viewer"
-                className="absolute top-0 left-0 w-full h-full border-none"
-                allowFullScreen
+              src={ocapLink}
+              title="OCAP Viewer"
+              className="absolute top-0 left-0 w-full h-full border-none"
+              allowFullScreen
             />
-            </div>
+          </div>
         </div>
-        )}
-
+      )}
     </div>
   );
 };

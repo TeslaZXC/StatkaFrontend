@@ -19,7 +19,7 @@ const MissionList = () => {
 
   useEffect(() => {
     axios
-      .get("https://restfully-winsome-malamute.cloudpub.ru/api/mission-list")
+      .get("http://147.45.219.240:8000/api/mission-list")
       .then((res) => {
         setMissions(res.data);
         setFilteredMissions(res.data);
@@ -53,9 +53,10 @@ const MissionList = () => {
     }
 
     if (minPlayers.trim()) {
-      filtered = filtered.filter(
-        (m) => parseInt(m.total_players) >= parseInt(minPlayers)
-      );
+      filtered = filtered.filter((m) => {
+        const playersNum = parseInt(m.players) || 0; // пустая строка станет 0
+        return playersNum >= parseInt(minPlayers);
+      });
     }
 
     if (dateFilter.trim()) {

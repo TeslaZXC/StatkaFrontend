@@ -7,7 +7,6 @@ const PlayerTopHeader = ({ onSort }) => (
       <th className="p-2 cursor-pointer" onClick={() => onSort("name")}>Игрок</th>
       <th className="p-2 cursor-pointer" onClick={() => onSort("frags")}>Frags</th>
       <th className="p-2 cursor-pointer" onClick={() => onSort("deaths")}>Deaths</th>
-      <th className="p-2 cursor-pointer" onClick={() => onSort("missions")}>Missions</th>
       <th className="p-2 cursor-pointer" onClick={() => onSort("kd")}>K/D</th>
     </tr>
   </thead>

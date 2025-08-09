@@ -1,73 +1,95 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 import Loader from "../components/Loader";
-import OcapViewer from "../components/MissionDetails/OcapViewer";
 import SquadTable from "../components/MissionDetails/SquadTable";
 import PlayerTable from "../components/MissionDetails/PlayerTable";
-import SearchInput from "../components/MissionDetails/SearchInput";
+import OcapViewer from "../components/MissionDetails/OcapViewer";  // импортируем твой компонент
+
+const BASE_URL = "http://147.45.219.240:8000";
 
 const sortData = (array, field, order) => {
   if (!Array.isArray(array)) return [];
   return [...array].sort((a, b) => {
-    const result = a[field] > b[field] ? 1 : -1;
+    const aVal = a[field];
+    const bVal = b[field];
+    if (aVal === bVal) return 0;
+    const result = aVal > bVal ? 1 : -1;
     return order === "asc" ? result : -result;
   });
 };
 
-const MissionDetails = () => {
+const MissionDetails= () => {
   const { id } = useParams();
+
+  const [loading, setLoading] = useState(true);
+  const [missionName, setMissionName] = useState("");
+
   const [squads, setSquads] = useState([]);
   const [players, setPlayers] = useState([]);
-  const [missionName, setMissionName] = useState("");
-  const [loading, setLoading] = useState(true);
 
   const [squadSortField, setSquadSortField] = useState("frags");
   const [squadSortOrder, setSquadSortOrder] = useState("desc");
+  const [squadFilterField, setSquadFilterField] = useState(null);
 
   const [playerSortField, setPlayerSortField] = useState("frags");
   const [playerSortOrder, setPlayerSortOrder] = useState("desc");
-
-  const [searchTerm, setSearchTerm] = useState("");
+  const [playerFilterField, setPlayerFilterField] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [squadsRes, playersRes, missionRes] = await Promise.all([
-          axios.get(`https://restfully-winsome-malamute.cloudpub.ru/api/squad-mission-stat?id=${id}`),
-          axios.get(`https://restfully-winsome-malamute.cloudpub.ru/api/player-mission-stats?mission_id=${id}`),
-          axios.get(`https://restfully-winsome-malamute.cloudpub.ru/api/mission-name/${id}`),
+          axios.get(`${BASE_URL}/api/squad-mission-stat`, { params: { id } }),
+          axios.get(`${BASE_URL}/api/player-mission-stats`, { params: { mission_id: id } }),
+          axios.get(`${BASE_URL}/api/mission-name/${id}`),
         ]);
 
-        setSquads(squadsRes.data.squads || []);
-        setPlayers(playersRes.data.players || []);
+        const squadsArray = Object.entries(squadsRes.data).map(([name, data]) => ({
+          squadName: name,
+          ...data,
+        }));
+
+        setSquads(squadsArray);
+        setPlayers(playersRes.data || []);
         setMissionName(missionRes.data?.mission_name?.mission_name || "");
-        setLoading(false);
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
+      } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [id]);
 
   if (loading) return <Loader />;
 
-  const sortedSquads = sortData(squads, squadSortField, squadSortOrder);
-  const sortedPlayers = sortData(players, playerSortField, playerSortOrder);
+  let filteredSquads = squads;
+  if (squadFilterField) {
+    filteredSquads = filteredSquads.filter(s => s[squadFilterField] !== undefined);
+  }
+  const sortedSquads = sortData(filteredSquads, squadSortField, squadSortOrder);
+
+  let filteredPlayers = players;
+  if (playerFilterField) {
+    filteredPlayers = filteredPlayers.filter(p => p[playerFilterField] !== undefined && p[playerFilterField] !== null);
+  }
+  const sortedPlayers = sortData(filteredPlayers, playerSortField, playerSortOrder);
 
   const presentSides = ["EAST", "WEST", "GUER"].filter(side =>
-    sortedSquads.some(s => s.side === side)
+    sortedSquads.some(squad => squad.side === side)
   );
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold text-accent mb-4">📊 Статистика миссии - {missionName || `#${id}`}</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        📊 Статистика миссии - {missionName || `#${id}`}
+      </h2>
 
       <div className={`grid gap-6 ${presentSides.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
-        {presentSides.map((side) => (
+        {presentSides.map(side => (
           <SquadTable
             key={side}
             title={`${side} Side`}
@@ -77,25 +99,25 @@ const MissionDetails = () => {
             sortOrder={squadSortOrder}
             setSortField={setSquadSortField}
             setSortOrder={setSquadSortOrder}
+            filterField={squadFilterField}
+            setFilterField={setSquadFilterField}
           />
         ))}
       </div>
 
-      <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] px-4">
-        <div className="max-w-6xl mx-auto">
-          <OcapViewer missionId={id} />
-        </div>
+      {/* --- Вот сюда вставляем компонент просмотра реплея --- */}
+      <div className="my-8">
+        <OcapViewer missionId={id} />
       </div>
-
-      <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       <PlayerTable
         players={sortedPlayers}
-        searchTerm={searchTerm}
         sortField={playerSortField}
         sortOrder={playerSortOrder}
         setSortField={setPlayerSortField}
         setSortOrder={setPlayerSortOrder}
+        filterField={playerFilterField}
+        setFilterField={setPlayerFilterField}
       />
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
-import PlayerTopTable from "../components/PlayerTop/PlayerTopTable"
+import PlayerTopTable from "../components/PlayerTop/PlayerTopTable";
 
 const PlayerTop = () => {
   const [data, setData] = useState([]);
@@ -13,9 +13,24 @@ const PlayerTop = () => {
 
   useEffect(() => {
     axios
-      .get("https://restfully-winsome-malamute.cloudpub.ru/api/player-top")
+      .get("http://147.45.219.240:8000/api/player-top")
       .then((res) => {
-        setData(res.data);
+        const players = res.data
+          .map((player) => {
+            const frags = player.stats.frags;
+            const deaths = player.stats.deaths_count;
+            if (deaths === 0) return null; // не показываем игрока с 0 смертей
+            const kd = frags / deaths;
+            return {
+              name: player.name,
+              frags,
+              deaths,
+              kd,
+            };
+          })
+          .filter(Boolean); // удаляем null-ы из массива
+
+        setData(players);
         setLoading(false);
       })
       .catch((error) => {
@@ -34,8 +49,9 @@ const PlayerTop = () => {
   };
 
   const sortedData = [...data].sort((a, b) => {
-    const result = a[sortField] > b[sortField] ? 1 : -1;
-    return sortOrder === "asc" ? result : -result;
+    if (a[sortField] > b[sortField]) return sortOrder === "asc" ? 1 : -1;
+    if (a[sortField] < b[sortField]) return sortOrder === "asc" ? -1 : 1;
+    return 0;
   });
 
   const handlePlayerClick = (name) => {

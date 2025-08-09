@@ -9,10 +9,7 @@ const PlayerTopRow = ({ player, index, onClick }) => (
     <td className="p-2 font-bold text-accent">{player.name}</td>
     <td className="p-2">{player.frags}</td>
     <td className="p-2">{player.deaths}</td>
-    <td className="p-2">{player.missions}</td>
-    <td className="p-2 font-semibold">
-      {typeof player.kd === "number" ? player.kd.toFixed(4) : "—"}
-    </td>
+    <td className="p-2 font-semibold">{player.kd.toFixed(4)}</td>
   </tr>
 );
 

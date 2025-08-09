@@ -7,8 +7,8 @@ const SquadTopHeader = ({ onSort }) => (
       <th className="p-2 cursor-pointer" onClick={() => onSort("name")}>Отряд</th>
       <th className="p-2 cursor-pointer" onClick={() => onSort("frags")}>Frags</th>
       <th className="p-2 cursor-pointer" onClick={() => onSort("deaths")}>Deaths</th>
-      <th className="p-2 cursor-pointer" onClick={() => onSort("missions")}>Missions</th>
-      <th className="p-2 cursor-pointer" onClick={() => onSort("score")}>Score</th>
+      <th className="p-2 cursor-pointer" onClick={() => onSort("teamkills")}>Teamkills</th>
+      <th className="p-2 cursor-pointer" onClick={() => onSort("kd")}>K/D</th>
     </tr>
   </thead>
 );

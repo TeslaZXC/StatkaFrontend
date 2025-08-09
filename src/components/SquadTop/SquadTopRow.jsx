@@ -11,8 +11,8 @@ const SquadTopRow = ({ squad, index, onClick }) => (
     </td>
     <td className="p-2">{squad.frags}</td>
     <td className="p-2">{squad.deaths}</td>
-    <td className="p-2">{squad.missions}</td>
-    <td className="p-2 font-semibold">{squad.score.toFixed(4)}</td>
+    <td className="p-2">{squad.teamkills}</td>
+    <td className="p-2 font-semibold">{squad.kd.toFixed(2)}</td>
   </tr>
 );
 
