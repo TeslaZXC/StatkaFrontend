@@ -1,10 +1,11 @@
 import React from "react";
+import Updates from "../components/Updates"; // путь укажи корректно, если файл в той же папке - ./Updates
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <div className="flex-1 flex items-center justify-center text-center px-4">
-        <h1 className="text-4xl md:text-5xl font-bold animate-fade-in-up">
+    <div className="min-h-screen flex flex-col justify-between px-4">
+      <div className="flex-1 flex flex-col items-center justify-center text-center">
+        <h1 className="text-4xl md:text-5xl font-bold animate-fade-in-up max-w-4xl">
           STATKA — лучшая статистика игрового проекта{" "}
           <a
             href="https://www.red-bear.ru/"
@@ -15,6 +16,9 @@ const Home = () => {
             Red Bear
           </a>
         </h1>
+
+        {/* Вставляем обновления как отдельный компонент */}
+        <Updates />
       </div>
 
       <footer className="text-sm text-light opacity-80 text-center py-6 border-t border-accent">

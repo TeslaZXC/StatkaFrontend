@@ -19,7 +19,7 @@ const MissionList = () => {
 
   useEffect(() => {
     axios
-      .get("http://147.45.219.240:8000/api/mission-list")
+      .get("http://localhost:8000/api/mission-list")
       .then((res) => {
         setMissions(res.data);
         setFilteredMissions(res.data);

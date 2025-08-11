@@ -10,6 +10,7 @@ import PlayerStats from "./pages/PlayerStats";
 import MissionList from "./pages/MissionList";
 import MissionDetails from './pages/MissionDetails'
 import SquadStats from "./pages/SquadStats";
+import TopSeason from "./pages/TopSeason";
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
         <Route path="/mission/:id" element={<MissionDetails />} />
         <Route path="/player-stat" element={<PlayerStats />} />
         <Route path="/missions" element={<MissionList />} />
-        <Route path="/squad-stat/:name" element={<SquadStats />} />
+        <Route path="/squad-stat/" element={<SquadStats />} />
+        <Route path="/top-season/" element={<TopSeason />} />
       </Route>
     </Routes>
   );

@@ -7,7 +7,7 @@ import SquadTable from "../components/MissionDetails/SquadTable";
 import PlayerTable from "../components/MissionDetails/PlayerTable";
 import OcapViewer from "../components/MissionDetails/OcapViewer";  // импортируем твой компонент
 
-const BASE_URL = "http://147.45.219.240:8000";
+const BASE_URL = "http://localhost:8000";
 
 const sortData = (array, field, order) => {
   if (!Array.isArray(array)) return [];

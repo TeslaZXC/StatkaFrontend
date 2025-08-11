@@ -11,7 +11,7 @@ const SquadTopTable = ({ data, onSort, onRowClick }) => (
           key={`squad-${squad.name}`}
           squad={squad}
           index={index}
-          onClick={onRowClick}
+          onClick={onRowClick} // <-- передаем сюда
         />
       ))}
     </tbody>

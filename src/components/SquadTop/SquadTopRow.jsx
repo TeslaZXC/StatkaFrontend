@@ -1,23 +1,21 @@
 import React from "react";
 
-const SquadTopRow = ({ squad, index }) => {
+const SquadTopRow = ({ squad, index, onClick }) => {
   const handleClick = () => {
-    const url = `/squad-stat/${encodeURIComponent(squad.name)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (onClick) {
+      onClick(squad.name);
+    }
   };
 
   let placeBg = "";
-  if (index === 0) placeBg = "bg-yellow-500/20"; // золото
-  else if (index === 1) placeBg = "bg-gray-400/20"; // серебро
-  else if (index === 2) placeBg = "bg-amber-700/20"; // бронза
+  if (index === 0) placeBg = "bg-yellow-500/20";
+  else if (index === 1) placeBg = "bg-gray-400/20";
+  else if (index === 2) placeBg = "bg-amber-700/20";
 
   return (
-    <tr className={`border-t border-zinc-700 hover:bg-zinc-800 ${placeBg}`}>
+    <tr className={`border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer ${placeBg}`}>
       <td className="p-2 text-zinc-400">{index + 1}</td>
-      <td
-        className="p-2 font-bold text-accent cursor-pointer"
-        onClick={handleClick}
-      >
+      <td className="p-2 font-bold text-accent" onClick={handleClick}>
         {squad.name}
       </td>
       <td className="p-2 text-white">{squad.frags}</td>
@@ -29,3 +27,4 @@ const SquadTopRow = ({ squad, index }) => {
 };
 
 export default SquadTopRow;
+

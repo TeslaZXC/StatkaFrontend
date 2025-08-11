@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import SquadPlayersTable from "./SquadPlayersTable";
 
-const BASE_URL = "http://147.45.219.240:8000";
+const BASE_URL = "http://localhost:8000";
 
 const SquadTable = ({
   title,

@@ -8,7 +8,8 @@ const tabs = [
   { id: "mission-stat", label: "📋 Миссии", route: "/missions" },
   { id: "player-stat", label: "📊 Статистика игроков", route: "/player-stat" },
   { id: "player-top", label: "👑 Топ игроков", route: "/player-top" },
-  { id: "squad-top", label: "🏆 Топ отрядов", route: "/squad-top" }
+  { id: "squad-top", label: "🏆 Топ отрядов", route: "/squad-top" },
+  // { id: "squad-top", label: "🥇 Доска почета", route: "/top-season" }
 ];
 
 const Tabs = () => {
