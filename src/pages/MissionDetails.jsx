@@ -90,18 +90,19 @@ const MissionDetails= () => {
 
       <div className={`grid gap-6 ${presentSides.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
         {presentSides.map(side => (
-          <SquadTable
-            key={side}
-            title={`${side} Side`}
-            side={side}
-            data={sortedSquads}
-            sortField={squadSortField}
-            sortOrder={squadSortOrder}
-            setSortField={setSquadSortField}
-            setSortOrder={setSquadSortOrder}
-            filterField={squadFilterField}
-            setFilterField={setSquadFilterField}
-          />
+        <SquadTable
+          key={side}
+          title={`${side} Side`}
+          side={side}
+          data={sortedSquads}
+          sortField={squadSortField}
+          sortOrder={squadSortOrder}
+          setSortField={setSquadSortField}
+          setSortOrder={setSquadSortOrder}
+          filterField={squadFilterField}
+          setFilterField={setSquadFilterField}
+          missionId={id} // <-- добавляем
+        />
         ))}
       </div>
 

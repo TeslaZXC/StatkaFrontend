@@ -1,16 +1,23 @@
 import React from "react";
 
-const PlayerTopRow = ({ player, index, onClick }) => (
-  <tr
-    className="border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer"
-    onClick={() => onClick(player.name)}
-  >
-    <td className="p-2 text-zinc-400">{index + 1}</td>
-    <td className="p-2 font-bold text-accent">{player.name}</td>
-    <td className="p-2">{player.frags}</td>
-    <td className="p-2">{player.deaths}</td>
-    <td className="p-2 font-semibold">{player.kd.toFixed(4)}</td>
-  </tr>
-);
+const PlayerTopRow = ({ player, index, onClick }) => {
+  let placeBg = "";
+  if (index === 0) placeBg = "bg-yellow-500/20"; // золото
+  else if (index === 1) placeBg = "bg-gray-400/20"; // серебро
+  else if (index === 2) placeBg = "bg-amber-700/20"; // бронза
+
+  return (
+    <tr
+      className={`border-t border-zinc-700 hover:bg-zinc-800 cursor-pointer ${placeBg}`}
+      onClick={() => onClick(player.name)}
+    >
+      <td className="p-2 text-zinc-400">{index + 1}</td>
+      <td className="p-2 font-bold text-white">{player.name}</td>
+      <td className="p-2 text-white">{player.frags}</td>
+      <td className="p-2 text-white">{player.deaths}</td>
+      <td className="p-2 font-semibold text-white">{player.kd.toFixed(4)}</td>
+    </tr>
+  );
+};
 
 export default PlayerTopRow;
