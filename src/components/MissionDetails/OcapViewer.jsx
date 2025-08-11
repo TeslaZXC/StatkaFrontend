@@ -11,7 +11,7 @@ const OcapViewer = ({ missionId }) => {
     const fetchMissionInfo = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/mission-name/${missionId}`
+          `http://147.45.219.240:8000/api/mission-name/${missionId}`
         );
         const data = res.data?.mission_name;
         if (data) {

@@ -8,7 +8,7 @@ const SeasonSelect = ({ onSelect }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/season")
+      .get("http://147.45.219.240:8000/api/season")
       .then((res) => {
         setSeasons(res.data);
         setLoading(false);

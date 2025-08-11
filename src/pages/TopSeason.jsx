@@ -33,7 +33,7 @@ const TopSeason = () => {
     setError(null);
 
     axios
-      .get(`http://localhost:8000/api/top-season?file_name=${fileName}`)
+      .get(`http://147.45.219.240:8000/api/top-season?file_name=${fileName}`)
       .then((res) => {
         setData(res.data);
         setLoading(false);
@@ -137,7 +137,6 @@ const TopSeason = () => {
 
       {data && (
         <div className="w-full max-w-5xl space-y-20 mt-8 px-2">
-          {/* ТОП ОТРЯДОВ */}
           <section>
             <h3 className="text-3xl font-semibold mb-8 border-b border-accent pb-3 text-center">
               Топ 3 отряда
@@ -145,7 +144,6 @@ const TopSeason = () => {
             {renderTop(data.top_squads, "squad")}
           </section>
 
-          {/* ТОП ИГРОКОВ */}
           <section>
             <h3 className="text-3xl font-semibold mb-8 border-b border-accent pb-3 text-center">
               Топ 3 игрока

@@ -16,7 +16,7 @@ const SquadTop = () => {
     setLoading(true);
 
     axios
-      .get(`http://localhost:8000/api/squad_top?file_name=${encodeURIComponent(selectedFileName)}`)
+      .get(`http://147.45.219.240:8000/api/squad_top?file_name=${encodeURIComponent(selectedFileName)}`)
       .then((res) => {
         const squads = Object.entries(res.data).map(([name, stats]) => {
           const frags = stats.frags;

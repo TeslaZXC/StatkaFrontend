@@ -17,7 +17,7 @@ const PlayerTop = () => {
     if (!fileName) return; // не грузим, если сезон не выбран
 
     setLoading(true);
-    let url = "http://localhost:8000/api/player-top";
+    let url = "http://147.45.219.240:8000/api/player-top";
     url += `?file_name=${encodeURIComponent(fileName)}`;
 
     axios

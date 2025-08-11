@@ -27,7 +27,7 @@ const PlayerDetails = () => {
     setPlayerData(null);
 
     axios
-      .get("http://localhost:8000/api/player-stat", {
+      .get("http://147.45.219.240:8000/api/player-stat", {
         params: {
           file_name: fileName,
           player_name: name,

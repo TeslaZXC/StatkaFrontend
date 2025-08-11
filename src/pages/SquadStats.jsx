@@ -33,7 +33,7 @@ const SquadStats = () => {
         setLoading(true);
         setError(null);
 
-        const res = await axios.get("http://localhost:8000/api/squad-stat", {
+        const res = await axios.get("http://147.45.219.240:8000/api/squad-stat", {
           params: { file_name, tag },
         });
 
@@ -43,7 +43,7 @@ const SquadStats = () => {
 
         setSquadData(res.data);
 
-        const playersRes = await axios.get("http://localhost:8000/api/team-players", {
+        const playersRes = await axios.get("http://147.45.219.240:8000/api/team-players", {
           params: { file_name, tag },
         });
 
