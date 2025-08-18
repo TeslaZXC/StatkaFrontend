@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
 import SquadInfo from "../components/SquadStats/SquadInfo";
 import SquadMembersTable from "../components/SquadStats/SquadMembersTable";
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
 const SquadStats = () => {
-  const query = useQuery();
-  const file_name = query.get("file_name");
-  const tag = query.get("tag");
+  const { seasonId, tag } = useParams(); 
 
   const [squadData, setSquadData] = useState(null);
   const [playersStats, setPlayersStats] = useState([]);
@@ -21,11 +15,11 @@ const SquadStats = () => {
 
   useEffect(() => {
     const fetchSquadStats = async () => {
-      if (!file_name || !tag) {
+      if (!seasonId || !tag) {
         setSquadData(null);
         setPlayersStats([]);
         setLoading(false);
-        setError("Отсутствуют необходимые параметры file_name или tag");
+        setError("Отсутствуют необходимые параметры сезона или тега отряда");
         return;
       }
 
@@ -34,17 +28,14 @@ const SquadStats = () => {
         setError(null);
 
         const res = await axios.get("http://147.45.219.240:8000/api/squad-stat", {
-          params: { file_name, tag },
+          params: { id: seasonId, tag },
         });
 
-        if (!res.data) {
-          throw new Error("Данные отряда не найдены");
-        }
-
+        if (!res.data) throw new Error("Данные отряда не найдены");
         setSquadData(res.data);
 
         const playersRes = await axios.get("http://147.45.219.240:8000/api/team-players", {
-          params: { file_name, tag },
+          params: { id: seasonId, tag },
         });
 
         const players = playersRes.data.map((player) => {
@@ -75,12 +66,10 @@ const SquadStats = () => {
     };
 
     fetchSquadStats();
-  }, [file_name, tag]);
+  }, [seasonId, tag]);
 
   if (loading) return <Loader />;
-
   if (error) return <p className="text-red-500">Ошибка: {error}</p>;
-
   if (!squadData) return <p>Ошибка загрузки данных отряда</p>;
 
   return (
@@ -92,7 +81,7 @@ const SquadStats = () => {
       <SquadInfo squad={squadData} />
 
       <h2 className="text-xl font-semibold mb-2">👥 Участники:</h2>
-      <SquadMembersTable players={playersStats} fileName={file_name} />
+      <SquadMembersTable players={playersStats} fileName={seasonId} />
     </div>
   );
 };

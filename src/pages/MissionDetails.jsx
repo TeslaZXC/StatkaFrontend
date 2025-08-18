@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import SquadTable from "../components/MissionDetails/SquadTable";
 import PlayerTable from "../components/MissionDetails/PlayerTable";
-import OcapViewer from "../components/MissionDetails/OcapViewer";  // импортируем твой компонент
+import OcapViewer from "../components/MissionDetails/OcapViewer";  
 
 const BASE_URL = "http://147.45.219.240:8000";
 
@@ -101,12 +101,11 @@ const MissionDetails= () => {
           setSortOrder={setSquadSortOrder}
           filterField={squadFilterField}
           setFilterField={setSquadFilterField}
-          missionId={id} // <-- добавляем
+          missionId={id} 
         />
         ))}
       </div>
 
-      {/* --- Вот сюда вставляем компонент просмотра реплея --- */}
       <div className="my-8">
         <OcapViewer missionId={id} />
       </div>

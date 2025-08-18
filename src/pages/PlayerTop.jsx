@@ -4,52 +4,60 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import PlayerTopTable from "../components/PlayerTop/PlayerTopTable";
 import SeasonSelect from "../components/SeasonSelect";
+import StatTypeSelect from "../components/PlayerTop/StatTypeSelect";
 
 const PlayerTop = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState("kd");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [selectedSeasonFile, setSelectedSeasonFile] = useState("");
+  const [selectedSeasonId, setSelectedSeasonId] = useState("");
+  const [statType, setStatType] = useState("all");
   const navigate = useNavigate();
 
-  const fetchPlayerTop = (fileName) => {
-    if (!fileName) return; // не грузим, если сезон не выбран
+  const fetchPlayerTop = async (fileName) => {
+  if (!fileName) return;
 
-    setLoading(true);
-    let url = "http://147.45.219.240:8000/api/player-top";
-    url += `?file_name=${encodeURIComponent(fileName)}`;
+  setLoading(true);
+  let url = "http://147.45.219.240:8000/api/player-top";
+  if (statType === "veh") url = "http://147.45.219.240:8000/api/player-top-veh";
+  if (statType === "inf") url = "http://147.45.219.240:8000/api/player-top-inf";
 
-    axios
-      .get(url)
-      .then((res) => {
-        const players = res.data
-          .map((player) => {
-            const frags = player.stats.frags;
-            const deaths = player.stats.deaths_count;
-            if (deaths === 0) return null;
-            const kd = frags / deaths;
-            return {
-              name: player.name,
-              frags,
-              deaths,
-              kd,
-            };
-          })
-          .filter(Boolean);
+  try {
+    const res = await axios.get(url, {
+      params: { id: fileName },
+    });
 
-        setData(players);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Ошибка загрузки данных:", error);
-        setLoading(false);
-      });
-  };
+    const players = res.data.map((player) => {
+      let kills = 0;
+      if (statType === "all") kills = player.stats.frags;
+      if (statType === "inf") kills = player.stats.frag_inf;
+      if (statType === "veh") kills = player.stats.frag_veh;
+
+      const deaths = player.stats.deaths_count || 1;
+      const missions = player.stats.missions_played || 1;
+
+      return {
+        name: player.name,
+        frags: kills,
+        deaths,
+        kd: kills / deaths,
+        score: kills / missions,
+        destroyed_vehicles: player.stats.destroyed_vehicles,
+      };
+    });
+
+    setData(players);
+  } catch (err) {
+    console.error("Ошибка загрузки данных:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
-    fetchPlayerTop(selectedSeasonFile);
-  }, [selectedSeasonFile]);
+    fetchPlayerTop(selectedSeasonId);
+  }, [selectedSeasonId, statType]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -67,20 +75,19 @@ const PlayerTop = () => {
   });
 
   const handlePlayerClick = (name) => {
-    navigate(
-      `/player/${encodeURIComponent(name)}?file_name=${encodeURIComponent(
-        selectedSeasonFile
-      )}`
-    );
+    if (!selectedSeasonId) return;
+    navigate(`/player/${selectedSeasonId}/${encodeURIComponent(name)}`);
   };
+
 
   return (
     <div className="overflow-x-auto p-4">
       <h2 className="text-2xl font-bold text-accent mb-4">🏆 Топ игроков</h2>
 
-      <SeasonSelect onSelect={setSelectedSeasonFile} />
+      <SeasonSelect onSelect={setSelectedSeasonId} />
+      <StatTypeSelect value={statType} onChange={setStatType} />
 
-      {!selectedSeasonFile ? (
+      {!selectedSeasonId ? (
         <p>Пожалуйста, выберите период для отображения таблицы.</p>
       ) : loading ? (
         <Loader />

@@ -1,8 +1,7 @@
 import React from "react";
 
 const SquadInfo = ({ squad }) => {
-  const kd =
-    squad.deaths > 0 ? (squad.frags / squad.deaths).toFixed(2) : squad.frags;
+  const kd = squad.deaths > 0 ? (squad.frags / squad.deaths).toFixed(2) : squad.frags;
 
   return (
     <div className="mb-6 space-y-2">
@@ -10,7 +9,8 @@ const SquadInfo = ({ squad }) => {
       <p><strong>Тимкиллы:</strong> {squad.teamkills}</p>
       <p><strong>Смерти:</strong> {squad.deaths}</p>
       <p><strong>K/D:</strong> {kd}</p>
-      <p><strong>Squad Number:</strong> {/* сюда можно вставить номер, если он есть */}</p>
+      <p><strong>Миссий:</strong> {squad.missions_played}</p>
+      <p><strong>Счёт:</strong> {squad.score}</p>
     </div>
   );
 };

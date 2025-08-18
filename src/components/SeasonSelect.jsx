@@ -28,7 +28,11 @@ const SeasonSelect = ({ onSelect }) => {
         className="border border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 text-white p-2 rounded-lg
                    focus:outline-none focus:ring-0 focus:border-transparent
                    hover:from-zinc-700 hover:to-zinc-800 transition-colors duration-200 w-[350px]"
-        onChange={(e) => onSelect(e.target.value)}
+        onChange={(e) => {
+          const selectedSeasonNumber = e.target.value;
+          const fileName = seasons.find(s => s.season_number === Number(selectedSeasonNumber))?.file_name;
+          onSelect(selectedSeasonNumber, fileName); 
+        }}
         defaultValue=""
       >
         <option value="" disabled>
@@ -37,7 +41,7 @@ const SeasonSelect = ({ onSelect }) => {
         {seasons.map((season) => (
           <option
             key={season.season_number}
-            value={season.file_name}
+            value={season.season_number} 
             className="bg-zinc-800 text-white"
           >
             Сезон {season.season_number} ({season.start_date} - {season.end_date})

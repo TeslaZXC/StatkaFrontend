@@ -1,5 +1,5 @@
 import React from "react";
-import Updates from "../components/Updates"; // путь укажи корректно, если файл в той же папке - ./Updates
+import Updates from "../components/Updates"; 
 
 const Home = () => {
   return (
@@ -17,7 +17,7 @@ const Home = () => {
           </a>
         </h1>
 
-        {/* Вставляем обновления как отдельный компонент */}
+        {}
         <Updates />
       </div>
 

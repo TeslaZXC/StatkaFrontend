@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const extractName = (fullName) => {
-  return fullName.replace(/^\[[^\]]+\]\s*/, "").replace(/^[A-Za-z]+[.\s]+/, "");
-};
-
 const DeathsTable = ({ deaths }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
@@ -26,9 +22,11 @@ const DeathsTable = ({ deaths }) => {
           <thead className="bg-zinc-800 text-light">
             <tr>
               <th className="p-2">📅 Дата миссии</th>
+              <th className="p-2">⏱ Время</th>
               <th className="p-2">⚔ Убийца</th>
               <th className="p-2">📏 Дистанция</th>
               <th className="p-2">🔫 Оружие</th>
+              <th className="p-2">Тип смерти</th>
             </tr>
           </thead>
           <tbody>
@@ -40,9 +38,11 @@ const DeathsTable = ({ deaths }) => {
                 title={`Перейти к миссии ${death.mission_id}`}
               >
                 <td className="p-2">{death.mission_date}</td>
+                <td className="p-2">{death.time}</td>
                 <td className="p-2">{death.victim_name}</td>
                 <td className="p-2">{death.distance}</td>
                 <td className="p-2">{death.weapon}</td>
+                <td className="p-2">{death.frag_type || "-"}</td>
               </tr>
             ))}
           </tbody>

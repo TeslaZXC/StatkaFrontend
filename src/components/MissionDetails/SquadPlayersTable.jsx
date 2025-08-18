@@ -1,8 +1,8 @@
 import React from "react";
+import Loader from "../Loader";
 
-const SquadPlayersTable = ({ players }) => {
-  // Сортируем копию массива по убыванию фрагов
-  const sortedPlayers = [...players].sort((a, b) => b.frags - a.frags);
+const SquadPlayersTable = ({ players, loading }) => {
+  const sortedPlayers = players ? [...players].sort((a, b) => b.frags - a.frags) : [];
 
   return (
     <table className="min-w-full border border-zinc-700 text-sm mt-2">
@@ -15,7 +15,13 @@ const SquadPlayersTable = ({ players }) => {
         </tr>
       </thead>
       <tbody>
-        {sortedPlayers.length === 0 ? (
+        {loading ? (
+          <tr>
+            <td colSpan="4" className="py-6">
+              <Loader />
+            </td>
+          </tr>
+        ) : sortedPlayers.length === 0 ? (
           <tr>
             <td colSpan="4" className="text-center py-2 text-accent">
               Нет данных

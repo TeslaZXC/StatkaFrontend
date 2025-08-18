@@ -15,8 +15,8 @@ const getSquadFromName = (name) => {
 
 const extractName = (fullName) => {
   return fullName
-    .replace(/^\[[^\]]+\]\s*/, "")    // Убираем тег в квадратных скобках в начале, например [LG]
-    .replace(/^[^\s\.]+[.\s]+/, ""); // Убираем тег типа DW. или DW в начале
+    .replace(/^\[[^\]]+\]\s*/, "")    
+    .replace(/^[^\s\.]+[.\s]+/, ""); 
 };
 
 const PlayerTable = ({
@@ -92,7 +92,6 @@ const PlayerTable = ({
     <div className="mt-8 rounded-lg shadow-lg bg-zinc-900/50 p-4 text-light">
       <h3 className="text-xl font-bold mb-3 text-white">Игроки</h3>
 
-      {/* Поле поиска */}
       <div className="mb-4">
         <input
           type="text"
@@ -103,7 +102,6 @@ const PlayerTable = ({
         />
       </div>
 
-      {/* Фиксированный контейнер с прокруткой */}
       <div className="max-h-[500px] overflow-y-auto border border-zinc-700 rounded">
         <table className="min-w-full text-sm">
           <thead className="bg-zinc-800 text-light select-none">

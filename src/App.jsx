@@ -19,11 +19,11 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/squad-top" element={<SqaudTop />} />
         <Route path="/player-top" element={<PlayerTop />} />
-        <Route path="/player/:name" element={<PlayerDetails />} />
+        <Route path="/player/:id/:name" element={<PlayerDetails />} />
         <Route path="/mission/:id" element={<MissionDetails />} />
         <Route path="/player-stat" element={<PlayerStats />} />
         <Route path="/missions" element={<MissionList />} />
-        <Route path="/squad-stat/" element={<SquadStats />} />
+        <Route path="/squad-stat/:seasonId/:tag" element={<SquadStats />} />
         <Route path="/top-season/" element={<TopSeason />} />
       </Route>
     </Routes>

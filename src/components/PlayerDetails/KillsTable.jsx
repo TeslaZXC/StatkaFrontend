@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const extractName = (fullName) => {
-  return fullName.replace(/^\[[^\]]+\]\s*/, "");
-};
-
 const KillsTable = ({ kills }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
@@ -26,9 +22,11 @@ const KillsTable = ({ kills }) => {
           <thead className="bg-zinc-800 text-light">
             <tr>
               <th className="p-2">📅 Дата миссии</th>
+              <th className="p-2">⏱ Время</th>
               <th className="p-2">🎯 Цель</th>
               <th className="p-2">📏 Дистанция</th>
               <th className="p-2">🔫 Оружие</th>
+              <th className="p-2">Тип фрага</th>
             </tr>
           </thead>
           <tbody>
@@ -40,9 +38,11 @@ const KillsTable = ({ kills }) => {
                 title={`Перейти к миссии ${kill.mission_id}`}
               >
                 <td className="p-2">{kill.mission_date}</td>
+                <td className="p-2">{kill.time}</td>
                 <td className="p-2">{kill.victim_name}</td>
                 <td className="p-2">{kill.distance}</td>
                 <td className="p-2">{kill.weapon}</td>
+                <td className="p-2">{kill.frag_type || "-"}</td>
               </tr>
             ))}
           </tbody>

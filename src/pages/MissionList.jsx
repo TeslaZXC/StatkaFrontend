@@ -54,7 +54,7 @@ const MissionList = () => {
 
     if (minPlayers.trim()) {
       filtered = filtered.filter((m) => {
-        const playersNum = parseInt(m.players) || 0; // пустая строка станет 0
+        const playersNum = parseInt(m.players) || 0;
         return playersNum >= parseInt(minPlayers);
       });
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/Loader";
 import PlayerStatsTable from "../components/PlayerDetails/PlayerStatsTable";
@@ -8,16 +8,12 @@ import DeathsTable from "../components/PlayerDetails/DeathsTable";
 import PlayerKillsDeathsChart from "../components/PlayerDetails/PlayerKillsDeathsChart";
 
 const PlayerDetails = () => {
-  const { name } = useParams();
-  const location = useLocation();
+  const { id, name } = useParams(); 
   const [playerData, setPlayerData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const queryParams = new URLSearchParams(location.search);
-  const fileName = queryParams.get("file_name");
-
   useEffect(() => {
-    if (!fileName) {
+    if (!id || !name) {
       setPlayerData(null);
       setLoading(false);
       return;
@@ -29,7 +25,7 @@ const PlayerDetails = () => {
     axios
       .get("http://147.45.219.240:8000/api/player-stat", {
         params: {
-          file_name: fileName,
+          id: id,
           player_name: name,
         },
       })
@@ -41,7 +37,7 @@ const PlayerDetails = () => {
         console.error("Ошибка при загрузке данных игрока:", error);
         setLoading(false);
       });
-  }, [fileName, name]);
+  }, [id, name]);
 
   if (loading) return <Loader />;
   if (!playerData)
@@ -53,7 +49,9 @@ const PlayerDetails = () => {
 
   return (
     <div className="p-4" style={{ overflowX: "auto" }}>
-      <h1 className="text-3xl font-bold text-accent mb-6">👤 Профиль: {name}</h1>
+      <h1 className="text-3xl font-bold text-accent mb-6">
+        👤 Профиль: {name}
+      </h1>
 
       <PlayerStatsTable playerData={playerData} />
 
@@ -61,13 +59,8 @@ const PlayerDetails = () => {
         <PlayerKillsDeathsChart playerData={playerData} height={450} width="100%" />
       </div>
 
-      {Array.isArray(playerData.victims) && (
-        <KillsTable kills={playerData.victims} />
-      )}
-
-      {Array.isArray(playerData.deaths) && (
-        <DeathsTable deaths={playerData.deaths} />
-      )}
+      <KillsTable kills={playerData?.victims ?? []} />
+      <DeathsTable deaths={playerData?.deaths ?? []} />
     </div>
   );
 };
