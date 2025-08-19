@@ -6,8 +6,9 @@ import Loader from "../components/Loader";
 import SquadTable from "../components/MissionDetails/SquadTable";
 import PlayerTable from "../components/MissionDetails/PlayerTable";
 import OcapViewer from "../components/MissionDetails/OcapViewer";  
+import API_BASE_URL from "../api";
 
-const BASE_URL = "http://147.45.219.240:8000";
+const BASE_URL = API_BASE_URL;
 
 const sortData = (array, field, order) => {
   if (!Array.isArray(array)) return [];

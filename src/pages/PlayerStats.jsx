@@ -4,6 +4,7 @@ import axios from "axios";
 import PlayerSearchInput from "../components/PlayerStats/PlayerSearchInput";
 import SuggestionList from "../components/PlayerStats/SuggestionList";
 import SeasonSelect from "../components/SeasonSelect";
+import API_BASE_URL from "../api";
 
 const PlayerStats = () => {
   const [playerName, setPlayerName] = useState("");
@@ -38,7 +39,7 @@ const handleSearch = () => {
     setLoading(true);
     const delayDebounce = setTimeout(() => {
       axios
-        .get("http://147.45.219.240:8000/api/player-search", {
+        .get(`${API_BASE_URL}/api/player-search`, {
           params: {
             id: selectedSeasonId,
             player_name: playerName

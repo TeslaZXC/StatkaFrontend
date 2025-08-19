@@ -4,6 +4,7 @@ import axios from "axios";
 import Loader from "../components/Loader";
 import MissionFilters from "../components/MissionList/MissionFilters";
 import MissionCard from "../components/MissionList/MissionCard";
+import API_BASE_URL from "../api";
 
 const MissionList = () => {
   const [missions, setMissions] = useState([]);
@@ -19,7 +20,7 @@ const MissionList = () => {
 
   useEffect(() => {
     axios
-      .get("http://147.45.219.240:8000/api/mission-list")
+      .get(`${API_BASE_URL}/api/mission-list`)
       .then((res) => {
         setMissions(res.data);
         setFilteredMissions(res.data);

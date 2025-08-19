@@ -5,6 +5,7 @@ import Loader from "../components/Loader";
 import PlayerTopTable from "../components/PlayerTop/PlayerTopTable";
 import SeasonSelect from "../components/SeasonSelect";
 import StatTypeSelect from "../components/PlayerTop/StatTypeSelect";
+import API_BASE_URL from "../api";
 
 const PlayerTop = () => {
   const [data, setData] = useState([]);
@@ -19,10 +20,10 @@ const PlayerTop = () => {
   if (!fileName) return;
 
   setLoading(true);
-  let url = "http://147.45.219.240:8000/api/player-top";
-  if (statType === "veh") url = "http://147.45.219.240:8000/api/player-top-veh";
-  if (statType === "inf") url = "http://147.45.219.240:8000/api/player-top-inf";
+  let url = `${API_BASE_URL}/api/player-top`;
 
+  if (statType === "veh") url = `${API_BASE_URL}/api/player-top-veh`;
+  if (statType === "inf") url = `${API_BASE_URL}/api/player-top-inf`;
   try {
     const res = await axios.get(url, {
       params: { id: fileName },

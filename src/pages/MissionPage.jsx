@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import OcapViewer from "../components/OcapViewer";
 import Loader from "../components/Loader";
+import API_BASE_URL from "../api";
 
 const sortData = (array, field, order) => {
   if (!Array.isArray(array)) return [];

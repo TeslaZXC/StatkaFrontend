@@ -6,7 +6,6 @@ const PlayerTopTable = ({ data, onSort, onPlayerClick }) => {
   const [sortedData, setSortedData] = useState([]);
 
   useEffect(() => {
-    // Сортировка по score от большего к меньшему по умолчанию
     setSortedData([...data].sort((a, b) => b.score - a.score));
   }, [data]);
 
@@ -16,7 +15,7 @@ const PlayerTopTable = ({ data, onSort, onPlayerClick }) => {
         onSort={(field) => {
           const sorted = [...sortedData].sort((a, b) => {
             if (field === "name") return a.name.localeCompare(b.name);
-            return b[field] - a[field]; // сортировка по числовым полям
+            return b[field] - a[field]; 
           });
           setSortedData(sorted);
           if (onSort) onSort(field);

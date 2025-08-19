@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "./Loader";
+import API_BASE_URL from "../api";
 
 const SeasonSelect = ({ onSelect }) => {
   const [seasons, setSeasons] = useState([]);
@@ -8,7 +9,7 @@ const SeasonSelect = ({ onSelect }) => {
 
   useEffect(() => {
     axios
-      .get("http://147.45.219.240:8000/api/season")
+      .get(`${API_BASE_URL}/api/season`)
       .then((res) => {
         setSeasons(res.data);
         setLoading(false);

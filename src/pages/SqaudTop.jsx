@@ -3,6 +3,7 @@ import axios from "axios";
 import Loader from "../components/Loader";
 import SquadTopTable from "../components/SquadTop/SquadTopTable";
 import SeasonSelect from "../components/SeasonSelect";
+import API_BASE_URL from "../api";
 
 const SquadTop = () => {
   const [data, setData] = useState([]);
@@ -16,7 +17,7 @@ const SquadTop = () => {
     setLoading(true);
 
     axios
-      .get(`http://147.45.219.240:8000/api/squad_top?id=${encodeURIComponent(selectedId)}`)
+      .get(`${API_BASE_URL}/api/squad_top?id=${encodeURIComponent(selectedId)}`)
       .then((res) => {
         const squads = Object.entries(res.data).map(([name, stats]) => {
           return {

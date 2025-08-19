@@ -4,6 +4,7 @@ import axios from "axios";
 import Loader from "../components/Loader";
 import SquadInfo from "../components/SquadStats/SquadInfo";
 import SquadMembersTable from "../components/SquadStats/SquadMembersTable";
+import API_BASE_URL from "../api";
 
 const SquadStats = () => {
   const { seasonId, tag } = useParams(); 
@@ -27,14 +28,14 @@ const SquadStats = () => {
         setLoading(true);
         setError(null);
 
-        const res = await axios.get("http://147.45.219.240:8000/api/squad-stat", {
+        const res = await axios.get(`${API_BASE_URL}/api/squad-stat`, {
           params: { id: seasonId, tag },
         });
 
         if (!res.data) throw new Error("Данные отряда не найдены");
         setSquadData(res.data);
 
-        const playersRes = await axios.get("http://147.45.219.240:8000/api/team-players", {
+        const playersRes = await axios.get(`${API_BASE_URL}/api/team-players`, {
           params: { id: seasonId, tag },
         });
 

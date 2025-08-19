@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../api";
 
 const OcapViewer = ({ missionId }) => {
   const [missionName, setMissionName] = useState("");
@@ -11,7 +12,7 @@ const OcapViewer = ({ missionId }) => {
     const fetchMissionInfo = async () => {
       try {
         const res = await axios.get(
-          `https://restfully-winsome-malamute.cloudpub.ru/api/mission-name/${missionId}`
+          `${API_BASE_URL}/api/mission-name/${missionId}`
         );
         const data = res.data?.mission_name;
         if (data) {

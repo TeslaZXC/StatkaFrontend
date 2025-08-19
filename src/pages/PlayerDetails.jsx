@@ -6,6 +6,7 @@ import PlayerStatsTable from "../components/PlayerDetails/PlayerStatsTable";
 import KillsTable from "../components/PlayerDetails/KillsTable";
 import DeathsTable from "../components/PlayerDetails/DeathsTable";
 import PlayerKillsDeathsChart from "../components/PlayerDetails/PlayerKillsDeathsChart";
+import API_BASE_URL from "../api";
 
 const PlayerDetails = () => {
   const { id, name } = useParams(); 
@@ -23,7 +24,7 @@ const PlayerDetails = () => {
     setPlayerData(null);
 
     axios
-      .get("http://147.45.219.240:8000/api/player-stat", {
+      .get(`${API_BASE_URL}/api/player-stat`, {
         params: {
           id: id,
           player_name: name,

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import SquadPlayersTable from "./SquadPlayersTable";
+import API_BASE_URL from "../../api";
 
-const BASE_URL = "http://147.45.219.240:8000";
+const BASE_URL = API_BASE_URL;
 
 const SquadTable = ({
   title,
