@@ -7,7 +7,10 @@ import SquadTable from "../components/MissionPage/SquadTable";
 import SquadDetail from "../components/MissionPage/SquadDetail";
 import OcapViewer from "../components/MissionPage/OcapViewer";
 import KillsChartSquad from "../components/MissionPage/KillsChartSquad";
+import SquadComparison from "../components/MissionPage/SquadComparison";
 import SquadChart from "../components/MissionPage/SquadChart";
+import PlayerTable from "../components/MissionPage/PlayerTable.jsx";
+import WeaponKillsChart from "../components/MissionPage/WeaponKillsChart.jsx";
 
 export default function MissionPage() {
   const { id } = useParams();
@@ -15,6 +18,8 @@ export default function MissionPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSquad, setSelectedSquad] = useState(null);
   const [ocapLink, setOcapLink] = useState(null);
+  const [missionFile, setMissionFile] = useState(null);
+  const [missionName, setMissionName] = useState("");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,7 +33,14 @@ export default function MissionPage() {
         const resMission = await fetch(`${API_BASE_URL}/api/mission-name/${id}`);
         const jsonMission = await resMission.json();
         const file = jsonMission.mission_name.file;
-        setOcapLink(`http://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077`);
+        setMissionFile(file);
+
+        const nameWithoutExt = file.replace(".json", "");
+        setMissionName(nameWithoutExt);
+
+        setOcapLink(
+          `http://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077&t=${Date.now()}`
+        );
       } catch (err) {
         console.error("Ошибка загрузки:", err);
       } finally {
@@ -53,27 +65,40 @@ export default function MissionPage() {
     GUER: "border-green-600",
   };
 
-  const handleVictimClick = (victim) => {
-    if (!victim || !ocapLink) return;
-    const frame = victim.frame || 0;
-    const x = victim.position?.x || 0;
-    const y = victim.position?.y || 0;
-    const baseFile = new URL(ocapLink).searchParams.get("file");
-    const newLink = `http://ocap.red-bear.ru/?file=${baseFile}&frame=${frame}&zoom=8&x=${x}&y=${y}`;
+  const handleVictimClick = (payload) => {
+    if (!missionFile) return;
+    let newLink = "";
+    if (typeof payload === "string") {
+      newLink = payload.includes("http")
+        ? `${payload}${payload.includes("?") ? "&" : "?"}t=${Date.now()}`
+        : "";
+    } else if (payload) {
+      const frame = payload.frame ?? 0;
+      const x = payload.position?.x ?? payload.killer_position?.x ?? 0;
+      const y = payload.position?.y ?? payload.killer_position?.y ?? 0;
+      newLink = `http://ocap.red-bear.ru/?file=${missionFile}&frame=${frame}&zoom=8&x=${x}&y=${y}&t=${Date.now()}`;
+    }
+    if (!newLink) return;
     setOcapLink(newLink);
+    requestAnimationFrame(() => {
+      const ocapElement = document.getElementById("ocap-viewer");
+      if (ocapElement) {
+        ocapElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
   };
 
   const killsChartData = useMemo(() => {
     const kills = [];
-    data.forEach(squad => {
+    data.forEach((squad) => {
       const side = squad.side;
-      (squad.victims_players ?? []).forEach(victim => {
+      (squad.victims_players ?? []).forEach((victim) => {
         kills.push({ time: victim.time, side });
       });
     });
 
     const groupedByTime = {};
-    kills.forEach(kill => {
+    kills.forEach((kill) => {
       const t = kill.time;
       if (!groupedByTime[t]) groupedByTime[t] = { time: t, WEST: 0, EAST: 0, GUER: 0 };
       if (kill.side === "WEST") groupedByTime[t].WEST += 1;
@@ -84,7 +109,7 @@ export default function MissionPage() {
     return Object.values(groupedByTime).sort((a, b) => a.time - b.time);
   }, [data]);
 
-  if (loading || !ocapLink) return <Loader text="Загрузка статистики..." />;
+  if (loading || !ocapLink || !missionFile) return <Loader text="Загрузка статистики..." />;
 
   return (
     <div className="relative min-h-screen">
@@ -92,13 +117,12 @@ export default function MissionPage() {
 
       <div className="relative z-10 px-6 py-10 w-full max-w-full space-y-10">
         <h2 className="text-3xl md:text-4xl font-heading text-brand-red text-center">
-          Статистика миссии #{id}
+          Статистика миссии – "{missionName}"
         </h2>
 
-        {/* Колонки с отрядами */}
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-6">
-            {["WEST", "GUER"].map(side => (
+            {["WEST", "GUER"].map((side) =>
               grouped[side] ? (
                 <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
                   <SquadTable
@@ -108,11 +132,11 @@ export default function MissionPage() {
                   />
                 </Panel>
               ) : null
-            ))}
+            )}
           </div>
 
           <div className="flex-1 space-y-6">
-            {["EAST"].map(side => (
+            {["EAST"].map((side) =>
               grouped[side] ? (
                 <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
                   <SquadTable
@@ -122,7 +146,7 @@ export default function MissionPage() {
                   />
                 </Panel>
               ) : null
-            ))}
+            )}
 
             {selectedSquad && (
               <Panel title={`Детали отряда: ${selectedSquad.squad_tag}`} color={sideColors[selectedSquad.side]}>
@@ -132,12 +156,20 @@ export default function MissionPage() {
           </div>
         </div>
 
+        <Panel title="Статистика игроков" color="border-yellow-500" defaultOpen={true}>
+          <PlayerTable onVictimClick={handleVictimClick} missionFile={missionFile} />
+        </Panel>
+
         <div className="flex flex-col items-center w-full space-y-8">
-            {ocapLink && (
-            <div className="w-full max-w-[1900px]">
+          {ocapLink && (
+            <div id="ocap-viewer" className="w-full max-w-[1900px]">
               <OcapViewer link={ocapLink} />
             </div>
           )}
+
+              <div className="w-full max-w-[1900px]">
+                <WeaponKillsChart data={data} /> 
+              </div>
 
           {killsChartData.length > 0 && (
             <div className="w-full max-w-[1900px]">
@@ -146,9 +178,15 @@ export default function MissionPage() {
           )}
 
           {data.length > 0 && (
-            <div className="w-full max-w-[1900px]">
-              <SquadChart data={data} />
-            </div>
+            <>
+              <div className="w-full max-w-[1900px]">
+                <SquadChart data={data} />
+              </div>
+
+              <div className="w-full max-w-[1900px]">
+                <SquadComparison squads={data} />
+              </div>
+            </>
           )}
         </div>
       </div>

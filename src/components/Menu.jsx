@@ -12,9 +12,9 @@ function Menu() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-brand-black/85 backdrop-blur-md rounded-b-3xl shadow-2xl border border-brand-gray max-w-3xl w-full">
+    <header className="sticky top-0 z-50 bg-brand-black/85 backdrop-blur-md shadow-2xl border-b border-brand-gray w-full">
       <div className="flex justify-center items-center px-6 py-4 relative">
-        
+        {/* Десктоп меню */}
         <nav className="hidden md:flex gap-10">
           {menuItems.map((item) => (
             <Link
@@ -27,6 +27,7 @@ function Menu() {
           ))}
         </nav>
 
+        {/* Бургер меню */}
         <button
           className="md:hidden absolute right-6 text-brand-light focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
@@ -37,6 +38,7 @@ function Menu() {
         </button>
       </div>
 
+      {/* Мобильное меню */}
       {isOpen && (
         <nav className="md:hidden flex flex-col items-center gap-4 pb-4">
           {menuItems.map((item) => (

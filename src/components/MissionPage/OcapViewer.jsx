@@ -9,11 +9,14 @@ export default function OcapViewer({ defaultOpen = true, link }) {
     if (defaultOpen) setExpanded(true);
   }, [defaultOpen]);
 
+  useEffect(() => {
+    if (link) setExpanded(true);
+  }, [link]);
+
   if (!link) return null;
 
   return (
     <>
-      {/* Fullscreen */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
@@ -38,13 +41,12 @@ export default function OcapViewer({ defaultOpen = true, link }) {
                   ✕ Закрыть
                 </button>
               </div>
-              <iframe src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
+              <iframe key={link} src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Collapsible */}
       <div className="flex justify-center my-6">
         <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1600px]">
           <div
@@ -71,7 +73,7 @@ export default function OcapViewer({ defaultOpen = true, link }) {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden flex flex-col w-full"
               >
-                <iframe src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
+                <iframe key={link} src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
               </motion.div>
             )}
           </AnimatePresence>

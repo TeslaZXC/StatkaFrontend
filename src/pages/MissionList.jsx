@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom"; 
 import Background from "../components/Background";
 import Loader from "../components/Loader";
 import MissionFilter from "../components/MissionList/MissionFilter";
@@ -86,9 +87,10 @@ function MissionList() {
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
             return (
-              <div
+              <Link
                 key={mission.id}
-                className="bg-brand-gray/90 rounded-xl shadow-lg p-6 hover:bg-brand-gray/80 transition-colors duration-200 flex flex-col justify-between"
+                to={`/mission/${mission.id}`} 
+                className="bg-brand-gray/90 rounded-xl shadow-lg p-6 hover:bg-brand-gray/80 transition-colors duration-200 flex flex-col justify-between cursor-pointer"
                 style={{ minHeight: "220px", maxHeight: "220px" }}
               >
                 <h3 className="text-xl md:text-2xl font-heading text-brand-light mb-2 truncate">
@@ -107,7 +109,7 @@ function MissionList() {
                 <p className="text-brand-muted text-sm truncate">
                   <span className="font-bold">Победившая сторона:</span> {mission.win_side}
                 </p>
-              </div>
+              </Link>
             );
           })}
         </div>

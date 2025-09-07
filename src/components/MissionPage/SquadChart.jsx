@@ -11,7 +11,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Формат времени в ч:м:с
 const formatTime = (t) => {
   const totalSeconds = Math.floor(t * 60);
   const hours = Math.floor(totalSeconds / 3600);
@@ -22,15 +21,14 @@ const formatTime = (t) => {
     .padStart(2, "0")}`;
 };
 
-// Генератор яркого уникального цвета по строке (HSL)
 const stringToBrightColor = (str) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const hue = Math.abs(hash) % 360; // Hue от 0 до 359
-  const saturation = 75; // насыщенность 75% для яркости
-  const lightness = 50;  // средняя яркость
+  const hue = Math.abs(hash) % 360; 
+  const saturation = 75; 
+  const lightness = 50;  
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
@@ -42,14 +40,12 @@ export default function SquadChart({ defaultOpen = true, data = [] }) {
 
   const squads = data.map((s) => s.squad_tag);
 
-  // Все уникальные времена
   const timesSet = new Set();
   data.forEach((squad) => {
     (squad.victims_players ?? []).forEach((v) => timesSet.add(v.time));
   });
   const times = Array.from(timesSet).sort((a, b) => a - b);
 
-  // Формируем график с 0 для отсутствующих данных
   const chartData = times.map((time) => {
     const point = { time };
     data.forEach((squad) => {
@@ -59,7 +55,6 @@ export default function SquadChart({ defaultOpen = true, data = [] }) {
     return point;
   });
 
-  // Создаем объект цветов для каждого отряда
   const squadColors = {};
   squads.forEach((s) => {
     squadColors[s] = stringToBrightColor(s);
@@ -67,7 +62,6 @@ export default function SquadChart({ defaultOpen = true, data = [] }) {
 
   return (
     <>
-      {/* Fullscreen */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
@@ -123,7 +117,6 @@ export default function SquadChart({ defaultOpen = true, data = [] }) {
         )}
       </AnimatePresence>
 
-      {/* Collapsible Window */}
       <div className="flex justify-center my-6">
         <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1900px]">
           <div

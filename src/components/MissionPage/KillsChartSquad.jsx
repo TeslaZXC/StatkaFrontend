@@ -32,7 +32,6 @@ export default function KillsChartSquad({ defaultOpen = true, data = [] }) {
 
   return (
     <>
-      {/* Fullscreen */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
@@ -76,7 +75,6 @@ export default function KillsChartSquad({ defaultOpen = true, data = [] }) {
         )}
       </AnimatePresence>
 
-      {/* Collapsible */}
       <div className="flex justify-center my-6">
         <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1800px]">
           <div
