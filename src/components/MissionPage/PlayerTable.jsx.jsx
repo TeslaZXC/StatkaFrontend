@@ -30,7 +30,7 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
 
   useEffect(() => {
     if (selectedPlayer && detailRef.current) {
-      detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      // detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedPlayer]);
 

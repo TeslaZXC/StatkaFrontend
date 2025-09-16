@@ -23,6 +23,8 @@ export default function MissionPage() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchData = async () => {
       try {
         const resData = await fetch(`${API_BASE_URL}/api/squad-mission-stat?id=${id}`);
@@ -117,40 +119,20 @@ export default function MissionPage() {
           Статистика миссии – "{missionName}"
         </h2>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-        <div className="flex-1 flex flex-col gap-6">
-          {["WEST", "GUER"].map((side) =>
+        <div className="flex flex-col lg:flex-row gap-6 flex-1">
+          {["WEST", "GUER", "EAST"].map((side) =>
             grouped[side] ? (
-              <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
-                <SquadTable
-                  squads={grouped[side]}
-                  onSelectSquad={setSelectedSquad}
-                  onVictimClick={handleVictimClick}
-                />
-              </Panel>
+              <div key={side} className="flex-1 min-w-[400px]">
+                <Panel title={side} color={sideColors[side]} defaultOpen={true}>
+                  <SquadTable
+                    squads={grouped[side]}
+                    onSelectSquad={setSelectedSquad}
+                    onVictimClick={handleVictimClick}
+                  />
+                </Panel>
+              </div>
             ) : null
           )}
-        </div>
-
-        <div className="flex-1 flex flex-col gap-6">
-          {["EAST"].map((side) =>
-            grouped[side] ? (
-              <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
-                <SquadTable
-                  squads={grouped[side]}
-                  onSelectSquad={setSelectedSquad}
-                  onVictimClick={handleVictimClick}
-                />
-              </Panel>
-            ) : null
-          )}
-
-            {selectedSquad && (
-              <Panel title={`Детали отряда: ${selectedSquad.squad_tag}`} color={sideColors[selectedSquad.side]}>
-                <SquadDetail squad={selectedSquad} onVictimClick={handleVictimClick} />
-              </Panel>
-            )}
-          </div>
         </div>
 
         <div className="flex justify-center">
@@ -158,7 +140,6 @@ export default function MissionPage() {
             <PlayerTable onVictimClick={handleVictimClick} missionFile={missionFile} />
           </Panel>
         </div>
-
 
         <div className="flex justify-center">
           <Panel title="Просмотр окап" color="border-blue-500" defaultOpen={true} fixedWidth="1200px">
@@ -182,7 +163,7 @@ export default function MissionPage() {
 
         {killsChartData.length > 0 && (
           <div className="flex justify-center w-full my-6">
-            <Panel title="Статистика убийств по времени" color="border-orange -500" defaultOpen={true} fixedWidth="1600px">
+            <Panel title="Статистика убийств по времени" color="border-orange-500" defaultOpen={true} fixedWidth="1600px">
               <div className="w-full">
                 <KillsChartSquad data={killsChartData} />
               </div>
@@ -209,8 +190,7 @@ export default function MissionPage() {
             </div>
           </>
         )}
-
-        </div>
       </div>
+    </div>
   );
 }
