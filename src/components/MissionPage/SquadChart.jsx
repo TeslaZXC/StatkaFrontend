@@ -1,24 +1,12 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { useState, useMemo, useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
 
 const formatTime = (t) => {
-  const totalSeconds = Math.floor(t * 60);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}`;
+  const totalMinutes = Math.floor(t);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}:${minutes.toString().padStart(2, "0")}`;
 };
 
 const stringToBrightColor = (str) => {
@@ -26,153 +14,171 @@ const stringToBrightColor = (str) => {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const hue = Math.abs(hash) % 360; 
-  const saturation = 75; 
-  const lightness = 50;  
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 75%, 50%)`;
 };
 
-export default function SquadChart({ defaultOpen = true, data = [] }) {
-  const [expanded, setExpanded] = useState(defaultOpen);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+const aggregateSquadData = (data, step = 10) => {
+  const allSquads = data.map((s) => s.squad_tag.toUpperCase());
+  const buckets = {};
 
-  if (!data || data.length === 0) return null;
-
-  const squads = data.map((s) => s.squad_tag);
-
-  const timesSet = new Set();
   data.forEach((squad) => {
-    (squad.victims_players ?? []).forEach((v) => timesSet.add(v.time));
-  });
-  const times = Array.from(timesSet).sort((a, b) => a - b);
-
-  const chartData = times.map((time) => {
-    const point = { time };
-    data.forEach((squad) => {
-      const killsAtTime = (squad.victims_players ?? []).filter((v) => v.time === time).length;
-      point[squad.squad_tag] = killsAtTime;
+    (squad.victims_players ?? []).forEach((v) => {
+      const bucket = Math.floor(v.time / step) * step;
+      if (!buckets[bucket]) buckets[bucket] = { time: bucket };
+      const tag = squad.squad_tag.toUpperCase();
+      buckets[bucket][tag] = (buckets[bucket][tag] || 0) + 1;
     });
-    return point;
   });
+
+  const result = Object.values(buckets).sort((a, b) => a.time - b.time);
+
+  result.forEach((point) => {
+    allSquads.forEach((squad) => {
+      if (!(squad in point)) point[squad] = 0;
+    });
+  });
+
+  return result;
+};
+
+export default function SquadChart({ data = [] }) {
+  const buttonRef = useRef(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+
+  const squads = data.map((s) => s.squad_tag.toUpperCase());
+  const chartData = useMemo(() => aggregateSquadData(data, 10), [data]);
+  const [visibleSquads, setVisibleSquads] = useState(new Set(squads));
+
+  if (!chartData || chartData.length === 0) return null;
 
   const squadColors = {};
   squads.forEach((s) => {
     squadColors[s] = stringToBrightColor(s);
   });
 
-  return (
+  const toggleSquad = (squad) => {
+    setVisibleSquads((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(squad)) {
+        newSet.delete(squad);
+      } else {
+        newSet.add(squad);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAll = () => setVisibleSquads(new Set(squads));
+  const clearAll = () => setVisibleSquads(new Set());
+
+  useEffect(() => {
+    if (dropdownOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 224;
+      let left = rect.left + window.scrollX;
+      if (left + dropdownWidth > window.innerWidth) {
+        left = rect.right - dropdownWidth + window.scrollX;
+      }
+      setDropdownPos({
+        top: rect.bottom + window.scrollY + 4,
+        left,
+      });
+    }
+  }, [dropdownOpen]);
+
+  const renderFilterDropdown = () => (
     <>
-      <AnimatePresence>
-        {isFullscreen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex justify-center items-center bg-black/60"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1900px] h-full"
-            >
-              <div className="flex justify-between items-center p-4 bg-brand-gray/90">
-                <h3 className="font-heading text-lg text-brand-light">График отрядов</h3>
-                <button
-                  onClick={() => setIsFullscreen(false)}
-                  className="px-2 py-1 bg-brand-red text-white rounded hover:bg-red-700 text-xs"
-                >
-                  ✕ Закрыть
-                </button>
-              </div>
-              <div className="flex-1 p-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="time"
-                      tickFormatter={formatTime}
-                      label={{ value: "Time", position: "insideBottom", offset: -5 }}
-                    />
-                    <YAxis label={{ value: "Kills", angle: -90, position: "insideLeft" }} />
-                    <Tooltip formatter={(v) => v} labelFormatter={formatTime} />
-                    <Legend verticalAlign="top" height={36} />
-                    {squads.map((tag) => (
-                      <Line
-                        key={tag}
-                        type="monotone"
-                        dataKey={tag}
-                        stroke={squadColors[tag]}
-                        strokeWidth={2}
-                        name={tag}
-                        connectNulls={true}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <button
+        ref={buttonRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDropdownOpen(!dropdownOpen);
+        }}
+        className="px-3 py-1 bg-brand-gray text-brand-light rounded hover:bg-brand-gray/70 text-sm"
+      >
+        ⚙ Фильтр отрядов
+      </button>
 
-      <div className="flex justify-center my-6">
-        <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1900px]">
+      {ReactDOM.createPortal(
+        dropdownOpen && (
           <div
-            className="flex justify-between items-center p-4 cursor-pointer hover:bg-brand-gray/80"
-            onClick={() => setExpanded(!expanded)}
+            className="absolute w-56 rounded-lg shadow-lg bg-brand-gray border border-brand-muted z-50 p-3"
+            style={{
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+            }}
           >
-            <h3 className="font-heading text-lg text-brand-light">График отрядов</h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsFullscreen(true);
-              }}
-              className="px-2 py-1 bg-brand-gray text-brand-light rounded hover:bg-brand-gray/70 text-xs"
-            >
-              ⛶ Во весь экран
-            </button>
-          </div>
-
-          <AnimatePresence>
-            {expanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 500, opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden flex flex-col w-full p-4"
+            <div className="flex justify-between mb-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  selectAll();
+                }}
+                className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="time"
-                      tickFormatter={formatTime}
-                      label={{ value: "Time", position: "insideBottom", offset: -5 }}
-                    />
-                    <YAxis label={{ value: "Kills", angle: -90, position: "insideLeft" }} />
-                    <Tooltip formatter={(v) => v} labelFormatter={formatTime} />
-                    <Legend verticalAlign="top" height={36} />
-                    {squads.map((tag) => (
-                      <Line
-                        key={tag}
-                        type="monotone"
-                        dataKey={tag}
-                        stroke={squadColors[tag]}
-                        strokeWidth={2}
-                        name={tag}
-                        connectNulls={true}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                + Все
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearAll();
+                }}
+                className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+              >
+                – Очистить
+              </button>
+            </div>
+            <div className="max-h-60 overflow-y-auto space-y-1">
+              {squads.map((s) => (
+                <label key={s} className="flex items-center space-x-2 cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                  <input type="checkbox" checked={visibleSquads.has(s)} onChange={() => toggleSquad(s)} />
+                  <span style={{ color: squadColors[s] }}>{s}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ),
+        document.body
+      )}
+    </>
+  );
+
+  const renderChart = (chartData) => (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={chartData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="time" tickFormatter={formatTime} />
+        <YAxis label={{ value: "Киллы", angle: -90, position: "insideLeft" }} />
+        <Tooltip formatter={(v) => v} labelFormatter={formatTime} />
+        <Legend verticalAlign="top" height={36} />
+        {[...visibleSquads].map((tag) => (
+          <Line
+            key={tag}
+            type="monotone"
+            dataKey={tag}
+            stroke={squadColors[tag]}
+            strokeWidth={2}
+            name={tag}
+            connectNulls={true}
+          />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+
+  return (
+    <div className="flex justify-center my-6">
+      <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1900px]">
+        <div className="flex justify-between items-center p-4">
+          <div className="flex items-center space-x-2">{renderFilterDropdown()}</div>
+        </div>
+
+        <div className="overflow-hidden flex flex-col w-full p-4 h-[500px]">
+          {renderChart(chartData)}
         </div>
       </div>
-    </>
+    </div>
   );
 }

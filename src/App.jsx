@@ -10,11 +10,15 @@ function App() {
     <Router>
       <Background enableCursorEffect={true} />
       <Menu />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/MissionList" element={<MissionList />} />
-        <Route path="/mission/:id" element={<MissionPage />} />
-      </Routes>
+      <h1>goidaaa</h1>
+      {/* отступ равный высоте меню */}
+      <main className="pt-20">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/MissionList" element={<MissionList />} />
+          <Route path="/mission/:id" element={<MissionPage />} />
+        </Routes>
+      </main>
     </Router>
   );
 }

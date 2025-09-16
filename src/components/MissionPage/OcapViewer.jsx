@@ -1,17 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function OcapViewer({ defaultOpen = true, link }) {
-  const [expanded, setExpanded] = useState(defaultOpen);
+export default function OcapViewer({ link, fixedHeight = "750px" }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    if (defaultOpen) setExpanded(true);
-  }, [defaultOpen]);
-
-  useEffect(() => {
-    if (link) setExpanded(true);
-  }, [link]);
 
   if (!link) return null;
 
@@ -30,53 +21,52 @@ export default function OcapViewer({ defaultOpen = true, link }) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1600px] h-full"
+              className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full h-full max-w-[2100px] max-h-[95vh]"
             >
-              <div className="flex justify-between items-center p-4 bg-brand-gray/90">
+              <div className="p-4 bg-brand-gray/90 text-center">
                 <h3 className="font-heading text-lg text-brand-light">OCAP Viewer</h3>
+              </div>
+
+              <iframe
+                src={link}
+                title="OCAP Viewer"
+                className="w-full h-full border-0 flex-1"
+              />
+
+              <div className="p-4 flex justify-center">
                 <button
                   onClick={() => setIsFullscreen(false)}
-                  className="px-2 py-1 bg-brand-red text-white rounded hover:bg-red-700 text-xs"
+                  className="px-4 py-2 bg-brand-red text-white rounded hover:bg-red-700 text-sm"
                 >
                   ✕ Закрыть
                 </button>
               </div>
-              <iframe key={link} src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex justify-center my-6">
-        <div className="bg-brand-gray/90 rounded-2xl shadow-lg overflow-hidden border border-brand-muted flex flex-col w-full max-w-[1600px]">
-          <div
-            className="flex justify-between items-center p-4 cursor-pointer hover:bg-brand-gray/80"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <h3 className="font-heading text-lg text-brand-light">OCAP Viewer</h3>
+      <div className="w-full flex justify-center my-6">
+        <div
+          className="w-full flex flex-col rounded-2xl shadow-lg overflow-hidden border border-brand-muted"
+          style={{ height: fixedHeight }}
+        >
+          <div className="flex justify-end p-2 bg-brand-gray/90">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsFullscreen(true);
-              }}
-              className="px-2 py-1 bg-brand-gray text-brand-light rounded hover:bg-brand-gray/70 text-xs"
+              onClick={() => setIsFullscreen(true)}
+              className="px-3 py-1 bg-brand-gray text-brand-light rounded hover:bg-brand-gray/70 text-xs"
             >
               ⛶ Во весь экран
             </button>
           </div>
-          <AnimatePresence>
-            {expanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 700, opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden flex flex-col w-full"
-              >
-                <iframe key={link} src={link} title="OCAP Viewer" className="w-full flex-1 border-0" />
-              </motion.div>
-            )}
-          </AnimatePresence>
+
+          <div className="w-full h-full">
+            <iframe
+              src={link}
+              title="OCAP Viewer"
+              className="w-full h-full border-0"
+            />
+          </div>
         </div>
       </div>
     </>

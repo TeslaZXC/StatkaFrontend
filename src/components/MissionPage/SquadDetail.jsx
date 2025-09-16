@@ -28,8 +28,10 @@ export default function SquadDetail({ squad, onVictimClick }) {
 
   const extractFirstTag = (fullName) => {
     const match = fullName.match(/\[([^\]]+)\]/);
-    return match ? `[${match[1]}]` : "";
+    return match ? `[${match[1].toUpperCase()}]` : "";
   };
+
+  const extractNameWithoutTag = (fullName) => fullName.replace(/\[.*?\]\s*/, "");
 
   const sortedPlayers = [...squad.squad_players].sort((a, b) => {
     const valA = a[sortColumn];
@@ -40,14 +42,13 @@ export default function SquadDetail({ squad, onVictimClick }) {
 
   const handleVictimClick = (victim) => {
     if (onVictimClick) onVictimClick(victim);
-
     if (ocapRef.current) {
       ocapRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 capitalize">
       <div>
         <h4 className="font-heading text-brand-light mb-2 text-sm">Игроки</h4>
         <table className="w-full text-xs text-brand-light border-collapse">
@@ -99,7 +100,7 @@ export default function SquadDetail({ squad, onVictimClick }) {
           >
             <div className="space-y-2 mt-2">
               <h4 className="font-heading text-brand-light mb-2 text-sm">Жертвы</h4>
-              <table className="w-full text-xs text-brand-light border-collapse">
+              <table className="w-full text-xs text-brand-light border-collapse capitalize">
                 <thead>
                   <tr className="text-left text-brand-muted border-b border-brand-gray">
                     <th className="px-2 py-1">Время</th>
@@ -119,7 +120,8 @@ export default function SquadDetail({ squad, onVictimClick }) {
                     >
                       <td className="px-2 py-1">{v.time}</td>
                       <td className="px-2 py-1 text-sm md:text-base font-semibold">
-                        {extractFirstTag(v.name)} {v.name.replace(/\[.*?\]\s*/, "")}
+                        {extractFirstTag(v.name)}{" "}
+                        {extractNameWithoutTag(v.name)}
                       </td>
                       <td className="px-2 py-1">
                         {v.weapon
@@ -132,7 +134,22 @@ export default function SquadDetail({ squad, onVictimClick }) {
                       </td>
                       <td className="px-2 py-1">{v.distance}м</td>
                       <td className="px-2 py-1 text-sm md:text-base font-semibold">
-                        {v.killer_name}
+                        {v.killer_tag
+                          ? `[${v.killer_tag.toUpperCase()}] ${v.killer_name
+                              .split(" ")
+                              .map(
+                                (w) =>
+                                  w.charAt(0).toUpperCase() +
+                                  w.slice(1).toLowerCase()
+                              )
+                              .join(" ")}`
+                          : v.killer_name
+                              .split(" ")
+                              .map(
+                                (w) =>
+                                  w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+                              )
+                              .join(" ")}
                       </td>
                       <td className="px-2 py-1">
                         {v.kill_type.charAt(0).toUpperCase() + v.kill_type.slice(1).toLowerCase()}

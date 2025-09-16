@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import PlayerDetail from "./PlayerDetail";
 
-export default function PlayerTable({ onVictimClick, missionFile }) {
+export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "1000px" }) {
   const { id } = useParams();
   const [players, setPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -34,8 +34,18 @@ export default function PlayerTable({ onVictimClick, missionFile }) {
     }
   }, [selectedPlayer]);
 
+  const capitalize = (str) =>
+    str
+      ? str
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(" ")
+      : "";
+
   const handleSortOrFilter = (column) => {
-    if (["frags", "death", "tk", "frags_veh", "frags_inf", "destroyed_veh"].includes(column)) {
+    if (
+      ["frags", "death", "tk", "frags_veh", "frags_inf", "destroyed_veh"].includes(column)
+    ) {
       if (sortColumn === column) {
         setSortOrder(sortOrder === "asc" ? "desc" : "asc");
       } else {
@@ -73,7 +83,7 @@ export default function PlayerTable({ onVictimClick, missionFile }) {
   });
 
   return (
-    <div className="space-y-4 relative">
+    <div className="space-y-4 relative" style={{ width: fixedWidth }}>
       <div className="flex items-center gap-2 mb-2">
         <input
           type="text"
@@ -91,19 +101,49 @@ export default function PlayerTable({ onVictimClick, missionFile }) {
         </button>
       </div>
 
-      <div className="max-h-[600px] overflow-y-auto rounded-lg border border-brand-gray">
-        <table className="w-full text-sm text-brand-light border-collapse">
+      <div className="rounded-lg border border-brand-gray h-[400px] overflow-x-auto w-full">
+        <table className="min-w-[900px] w-full text-sm text-brand-light border-collapse">
           <thead className="sticky top-0 bg-brand-gray z-10">
             <tr className="text-left text-brand-muted border-b border-brand-gray">
               <th className="px-2 py-1">Игрок</th>
               <th className="px-2 py-1">Отряд</th>
               <th className="px-2 py-1">Сторона</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("frags")}>Фраги {sortColumn==="frags"?(sortOrder==="asc"?"▲":"▼"):""}</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("frags_inf")}>Фраги инф {sortColumn==="frags_inf"?(sortOrder==="asc"?"▲":"▼"):""}</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("frags_veh")}>Фраги тех {sortColumn==="frags_veh"?(sortOrder==="asc"?"▲":"▼"):""}</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("death")}>Смерти {sortColumn==="death"?(sortOrder==="asc"?"▲":"▼"):""}</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("tk")}>TK {sortColumn==="tk"?(sortOrder==="asc"?"▲":"▼"):""}</th>
-              <th className="px-2 py-1 cursor-pointer" onClick={() => handleSortOrFilter("destroyed_veh")}>Ун. тех {sortColumn==="destroyed_veh"?(sortOrder==="asc"?"▲":"▼"):""}</th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("frags")}
+              >
+                Фраги {sortColumn === "frags" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("frags_inf")}
+              >
+                Фраги инф {sortColumn === "frags_inf" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("frags_veh")}
+              >
+                Фраги тех {sortColumn === "frags_veh" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("death")}
+              >
+                Смерти {sortColumn === "death" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("tk")}
+              >
+                TK {sortColumn === "tk" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
+              <th
+                className="px-2 py-1 cursor-pointer"
+                onClick={() => handleSortOrFilter("destroyed_veh")}
+              >
+                Ун. тех {sortColumn === "destroyed_veh" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -113,9 +153,9 @@ export default function PlayerTable({ onVictimClick, missionFile }) {
                 className="border-b border-brand-gray hover:bg-brand-gray/70 cursor-pointer"
                 onClick={() => setSelectedPlayer(player)}
               >
-                <td className="px-2 py-1">{player.name}</td>
-                <td className="px-2 py-1">{player.squad}</td>
-                <td className="px-2 py-1">{player.side}</td>
+                <td className="px-2 py-1 font-semibold">{capitalize(player.name)}</td>
+                <td className="px-2 py-1">{capitalize(player.squad)}</td>
+                <td className="px-2 py-1">{capitalize(player.side)}</td>
                 <td className="px-2 py-1">{player.frags}</td>
                 <td className="px-2 py-1">{player.frags_inf}</td>
                 <td className="px-2 py-1">{player.frags_veh}</td>
@@ -140,7 +180,7 @@ export default function PlayerTable({ onVictimClick, missionFile }) {
             <PlayerDetail
               player={selectedPlayer}
               missionFile={missionFile}
-              onVictimClick={onVictimClick} 
+              onVictimClick={onVictimClick}
             />
           </motion.div>
         )}

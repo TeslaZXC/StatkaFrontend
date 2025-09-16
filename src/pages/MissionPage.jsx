@@ -1,12 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import Background from "../components/Background";
 import Loader from "../components/Loader";
 import Panel from "../components/ui/Panel"; 
 import SquadTable from "../components/MissionPage/SquadTable";
 import SquadDetail from "../components/MissionPage/SquadDetail";
 import OcapViewer from "../components/MissionPage/OcapViewer";
-import KillsChartSquad from "../components/MissionPage/KillsChartSquad";
+import KillsChartSquad from "../components/MissionPage/SideChart.jsx";
 import SquadComparison from "../components/MissionPage/SquadComparison";
 import SquadChart from "../components/MissionPage/SquadChart";
 import PlayerTable from "../components/MissionPage/PlayerTable.jsx";
@@ -39,7 +38,7 @@ export default function MissionPage() {
         setMissionName(nameWithoutExt);
 
         setOcapLink(
-          `http://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077&t=${Date.now()}`
+          `https://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077&t=${Date.now()}`
         );
       } catch (err) {
         console.error("Ошибка загрузки:", err);
@@ -76,7 +75,7 @@ export default function MissionPage() {
       const frame = payload.frame ?? 0;
       const x = payload.position?.x ?? payload.killer_position?.x ?? 0;
       const y = payload.position?.y ?? payload.killer_position?.y ?? 0;
-      newLink = `http://ocap.red-bear.ru/?file=${missionFile}&frame=${frame}&zoom=8&x=${x}&y=${y}&t=${Date.now()}`;
+      newLink = `https://ocap.red-bear.ru/?file=${missionFile}&frame=${frame}&zoom=8&x=${x}&y=${y}&t=${Date.now()}`;
     }
     if (!newLink) return;
     setOcapLink(newLink);
@@ -112,41 +111,39 @@ export default function MissionPage() {
   if (loading || !ocapLink || !missionFile) return <Loader text="Загрузка статистики..." />;
 
   return (
-    <div className="relative min-h-screen">
-      <Background enableCursorEffect={true} />
-
+    <div className="min-h-screen">
       <div className="relative z-10 px-6 py-10 w-full max-w-full space-y-10">
         <h2 className="text-3xl md:text-4xl font-heading text-brand-red text-center">
           Статистика миссии – "{missionName}"
         </h2>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 space-y-6">
-            {["WEST", "GUER"].map((side) =>
-              grouped[side] ? (
-                <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
-                  <SquadTable
-                    squads={grouped[side]}
-                    onSelectSquad={setSelectedSquad}
-                    onVictimClick={handleVictimClick}
-                  />
-                </Panel>
-              ) : null
-            )}
-          </div>
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="flex-1 flex flex-col gap-6">
+          {["WEST", "GUER"].map((side) =>
+            grouped[side] ? (
+              <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
+                <SquadTable
+                  squads={grouped[side]}
+                  onSelectSquad={setSelectedSquad}
+                  onVictimClick={handleVictimClick}
+                />
+              </Panel>
+            ) : null
+          )}
+        </div>
 
-          <div className="flex-1 space-y-6">
-            {["EAST"].map((side) =>
-              grouped[side] ? (
-                <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
-                  <SquadTable
-                    squads={grouped[side]}
-                    onSelectSquad={setSelectedSquad}
-                    onVictimClick={handleVictimClick}
-                  />
-                </Panel>
-              ) : null
-            )}
+        <div className="flex-1 flex flex-col gap-6">
+          {["EAST"].map((side) =>
+            grouped[side] ? (
+              <Panel key={side} title={side} color={sideColors[side]} defaultOpen={true}>
+                <SquadTable
+                  squads={grouped[side]}
+                  onSelectSquad={setSelectedSquad}
+                  onVictimClick={handleVictimClick}
+                />
+              </Panel>
+            ) : null
+          )}
 
             {selectedSquad && (
               <Panel title={`Детали отряда: ${selectedSquad.squad_tag}`} color={sideColors[selectedSquad.side]}>
@@ -156,40 +153,64 @@ export default function MissionPage() {
           </div>
         </div>
 
-        <Panel title="Статистика игроков" color="border-yellow-500" defaultOpen={true}>
-          <PlayerTable onVictimClick={handleVictimClick} missionFile={missionFile} />
-        </Panel>
+        <div className="flex justify-center">
+          <Panel title="Статистика игроков" color="border-yellow-500" defaultOpen={true} fixedWidth="1200px">
+            <PlayerTable onVictimClick={handleVictimClick} missionFile={missionFile} />
+          </Panel>
+        </div>
 
-        <div className="flex flex-col items-center w-full space-y-8">
-          {ocapLink && (
-            <div id="ocap-viewer" className="w-full max-w-[1900px]">
-              <OcapViewer link={ocapLink} />
+
+        <div className="flex justify-center">
+          <Panel title="Просмотр окап" color="border-blue-500" defaultOpen={true} fixedWidth="1200px">
+            <div className="flex flex-col items-center w-full space-y-8">
+              {ocapLink && (
+                <div id="ocap-viewer" className="w-full max-w-[1900px] h-[800px]">
+                  <OcapViewer link={ocapLink} />
+                </div>
+              )}
             </div>
-          )}
+          </Panel>
+        </div>
 
-              <div className="w-full max-w-[1900px]">
-                <WeaponKillsChart data={data} /> 
-              </div>
-
-          {killsChartData.length > 0 && (
-            <div className="w-full max-w-[1900px]">
-              <KillsChartSquad data={killsChartData} />
+        <div className="flex justify-center w-full my-6">
+          <Panel title="Статистика убийств оружием" color="border-purple-500" defaultOpen={true} fixedWidth="1600px">
+            <div className="w-full">
+              <WeaponKillsChart data={data} />
             </div>
-          )}
+          </Panel>
+        </div>
 
-          {data.length > 0 && (
-            <>
-              <div className="w-full max-w-[1900px]">
-                <SquadChart data={data} />
+        {killsChartData.length > 0 && (
+          <div className="flex justify-center w-full my-6">
+            <Panel title="Статистика убийств по времени" color="border-orange -500" defaultOpen={true} fixedWidth="1600px">
+              <div className="w-full">
+                <KillsChartSquad data={killsChartData} />
               </div>
+            </Panel>
+          </div>
+        )}
 
-              <div className="w-full max-w-[1900px]">
-                <SquadComparison squads={data} />
-              </div>
-            </>
-          )}
+        {data.length > 0 && (
+          <>
+            <div className="flex justify-center w-full my-6">
+              <Panel title="Статистика отрядов" color="border-orange-500" defaultOpen={true} fixedWidth="1600px">
+                <div className="w-full">
+                  <SquadChart data={data} />
+                </div>
+              </Panel>
+            </div>
+
+            <div className="flex justify-center w-full my-6">
+              <Panel title="Сравнение отрядов" color="border-pink-500" defaultOpen={true} fixedWidth="1600px">
+                <div className="w-full">
+                  <SquadComparison squads={data} />
+                </div>
+              </Panel>
+            </div>
+          </>
+        )}
+
         </div>
       </div>
-    </div>
   );
 }

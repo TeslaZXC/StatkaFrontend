@@ -18,22 +18,6 @@ function Background({ enableCursorEffect = true }) {
         alt="Background"
         className="w-full h-full object-cover filter blur-lg"
       />
-
-      {enableCursorEffect && (
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            maskImage: `radial-gradient(circle 100px at ${pos.x}px ${pos.y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)`,
-            WebkitMaskImage: `radial-gradient(circle 100px at ${pos.x}px ${pos.y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)`,
-            maskRepeat: "no-repeat",
-            WebkitMaskRepeat: "no-repeat",
-            backgroundImage: `url(${bgImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            filter: "blur(0px)", 
-          }}
-        />
-      )}
     </div>
   );
 }
