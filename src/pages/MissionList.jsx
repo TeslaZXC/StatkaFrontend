@@ -6,7 +6,6 @@ import MissionFilter from "../components/MissionList/MissionFilter";
 
 function MissionList() {
   const [missions, setMissions] = useState([]);
-  const [displayMissions, setDisplayMissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     game_type: "",
@@ -16,37 +15,30 @@ function MissionList() {
     file_date: "",
   });
 
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/mission-list`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMissions(data);
-        setDisplayMissions(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [API_BASE_URL]);
-
-  const handleSearch = (newFilters) => {
-    setFilters(newFilters);
-
-    const query = Object.entries(newFilters)
+  const fetchMissions = (pageNum = 1, perPageNum = 10, appliedFilters = filters) => {
+    const query = Object.entries(appliedFilters)
       .filter(([_, value]) => value)
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join("&");
 
-    const url = `${API_BASE_URL}/api/mission-list${query ? `?${query}` : ""}`;
+    const url = `${API_BASE_URL}/api/mission-list?page=${pageNum}&per_page=${perPageNum}${query ? `&${query}` : ""}`;
 
     setLoading(true);
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        setDisplayMissions(data);
+        setMissions(data.missions || []);
+        setPage(data.page);
+        setPerPage(data.per_page);
+        setTotalPages(data.total_pages);
+        setTotal(data.total);
         setLoading(false);
       })
       .catch((err) => {
@@ -55,15 +47,37 @@ function MissionList() {
       });
   };
 
+  useEffect(() => {
+    fetchMissions(1, perPage, filters);
+  }, [API_BASE_URL]);
+
+  const handleSearch = (newFilters) => {
+    setFilters(newFilters);
+    fetchMissions(1, perPage, newFilters); // при поиске всегда с первой страницы
+  };
+
   const handleReset = () => {
-    setFilters({
+    const resetFilters = {
       game_type: "",
       win_side: "",
       world_name: "",
       mission_name: "",
       file_date: "",
-    });
-    setDisplayMissions(missions);
+    };
+    setFilters(resetFilters);
+    fetchMissions(1, perPage, resetFilters);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      fetchMissions(page - 1, perPage, filters);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      fetchMissions(page + 1, perPage, filters);
+    }
   };
 
   if (loading) return <Loader text="Загрузка миссий..." />;
@@ -82,7 +96,7 @@ function MissionList() {
           onReset={handleReset}
         />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {displayMissions.map((mission) => {
+          {missions.map((mission) => {
             const totalMinutes = Math.floor(mission.duration_time);
             const hours = Math.floor(totalMinutes / 60);
             const minutes = totalMinutes % 60;
@@ -112,6 +126,27 @@ function MissionList() {
               </Link>
             );
           })}
+        </div>
+
+        {/* Пагинация */}
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={handlePrevPage}
+            disabled={page === 1}
+            className="px-4 py-2 bg-brand-gray/80 rounded-lg disabled:opacity-50 hover:bg-brand-gray/60 transition"
+          >
+            ⬅ Предыдущая
+          </button>
+          <span className="text-brand-light">
+            Страница {page} из {totalPages} (Всего: {total})
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-brand-gray/80 rounded-lg disabled:opacity-50 hover:bg-brand-gray/60 transition"
+          >
+            Следующая ➡
+          </button>
         </div>
       </div>
     </div>

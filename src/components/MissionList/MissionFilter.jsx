@@ -1,47 +1,75 @@
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-function MissionFilter({ missions, filters, onSearch, onReset }) {
+function MissionFilter({ filters, onSearch, onReset }) {
   const [localFilters, setLocalFilters] = useState(filters);
+  const [filterOptions, setFilterOptions] = useState({
+    game_types: [],
+    win_sides: [],
+    world_names: [],
+    mission_names: [],
+  });
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    setLocalFilters(filters); 
+    setLocalFilters(filters);
   }, [filters]);
+
+  // Загружаем варианты фильтров с API
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/mission-filter")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.mission_name) {
+          setFilterOptions({
+            game_types: data.mission_name.game_types || [],
+            win_sides: data.mission_name.win_sides || [],
+            world_names: data.mission_name.world_names || [],
+            mission_names: data.mission_name.mission_names || [],
+          });
+        }
+      })
+      .catch((err) => console.error("Ошибка загрузки фильтров:", err));
+  }, []);
 
   const handleChange = (field, value) => {
     setLocalFilters((prev) => ({ ...prev, [field]: value }));
     if (field === "mission_name") setShowSuggestions(true);
   };
 
-  const getUniqueValues = (key) =>
-    [...new Set(missions.map((m) => m[key]).filter(Boolean))];
-
-  const filteredMissionNames = getUniqueValues("missionName").filter((name) =>
+  const filteredMissionNames = filterOptions.mission_names.filter((name) =>
     name.toLowerCase().includes(localFilters.mission_name.toLowerCase())
   );
 
   return (
     <div className="mb-10 relative">
       <div className="grid gap-4 md:grid-cols-5 mb-4">
+        {/* Тип игры */}
         <select
           value={localFilters.game_type}
           onChange={(e) => handleChange("game_type", e.target.value)}
           className="p-2 rounded-lg bg-brand-gray/80 text-brand-light"
         >
           <option value="">Тип игры</option>
-          {getUniqueValues("game_type").map((val) => (
-            <option key={val} value={val}>{val}</option>
+          {filterOptions.game_types.map((val) => (
+            <option key={val} value={val}>
+              {val}
+            </option>
           ))}
         </select>
 
+        {/* Победившая сторона */}
         <select
           value={localFilters.win_side}
           onChange={(e) => handleChange("win_side", e.target.value)}
           className="p-2 rounded-lg bg-brand-gray/80 text-brand-light"
         >
           <option value="">Победившая сторона</option>
-          {getUniqueValues("win_side").map((val) => (
-            <option key={val} value={val}>{val}</option>
+          {filterOptions.win_sides.map((val) => (
+            <option key={val} value={val}>
+              {val}
+            </option>
           ))}
         </select>
 
@@ -52,11 +80,14 @@ function MissionFilter({ missions, filters, onSearch, onReset }) {
           className="p-2 rounded-lg bg-brand-gray/80 text-brand-light"
         >
           <option value="">Мир</option>
-          {getUniqueValues("worldName").map((val) => (
-            <option key={val} value={val}>{val}</option>
+          {filterOptions.world_names.map((val) => (
+            <option key={val} value={val}>
+              {val}
+            </option>
           ))}
         </select>
 
+        {/* Название миссии */}
         <div className="relative">
           <input
             type="text"
@@ -85,14 +116,24 @@ function MissionFilter({ missions, filters, onSearch, onReset }) {
           )}
         </div>
 
-        <input
-          type="date"
-          value={localFilters.file_date}
-          onChange={(e) => handleChange("file_date", e.target.value)}
-          className="p-2 rounded-lg bg-brand-gray/80 text-brand-light"
+        {/* Дата с календарём */}
+        <DatePicker
+          selected={localFilters.file_date ? new Date(localFilters.file_date) : null}
+          onChange={(date) => {
+            if (date) {
+              const iso = date.toISOString().split("T")[0];
+              handleChange("file_date", iso);
+            } else {
+              handleChange("file_date", "");
+            }
+          }}
+          placeholderText="Выберите дату"
+          dateFormat="dd.MM.yyyy"
+          className="p-2 rounded-lg bg-brand-gray/80 text-brand-light w-full"
         />
       </div>
 
+      {/* Кнопки */}
       <div className="flex gap-4 justify-center">
         <button
           onClick={() => onSearch(localFilters)}

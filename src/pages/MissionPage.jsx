@@ -46,6 +46,8 @@ export default function MissionPage() {
         console.error("Ошибка загрузки:", err);
       } finally {
         setLoading(false);
+
+        console.log("goida")
       }
     };
 
