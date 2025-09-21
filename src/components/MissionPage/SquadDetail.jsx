@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cleanPlayerName } from "../../cleanPlayerName";
 
 export default function SquadDetail({ squad, onVictimClick }) {
   const [showVictims, setShowVictims] = useState(false);
@@ -47,6 +48,13 @@ export default function SquadDetail({ squad, onVictimClick }) {
     }
   };
 
+  const openPlayerPage = (nick) => {
+    const cleanName = cleanPlayerName(nick);
+    if (cleanName) {
+      window.open(`/player/${encodeURIComponent(cleanName)}`, "_blank");
+    }
+  };
+
   return (
     <div className="space-y-4 capitalize">
       <div>
@@ -72,7 +80,10 @@ export default function SquadDetail({ squad, onVictimClick }) {
           <tbody>
             {sortedPlayers.map((p, idx) => (
               <tr key={`player-${idx}`}>
-                <td className="px-2 py-1 text-sm md:text-base font-semibold">
+                <td
+                  className="px-2 py-1 text-sm md:text-base font-semibold cursor-pointer hover:underline text-brand-blue"
+                  onClick={() => openPlayerPage(p.name)}
+                >
                   {formatName(squad.squad_tag, p.name)}
                 </td>
                 <td className="px-2 py-1">{p.frags}</td>
@@ -119,10 +130,18 @@ export default function SquadDetail({ squad, onVictimClick }) {
                       onClick={() => handleVictimClick(v)}
                     >
                       <td className="px-2 py-1">{v.time}</td>
-                      <td className="px-2 py-1 text-sm md:text-base font-semibold">
-                        {extractFirstTag(v.name)}{" "}
-                        {extractNameWithoutTag(v.name)}
+
+                      {/* Жертва */}
+                      <td
+                        className="px-2 py-1 text-sm md:text-base font-semibold cursor-pointer hover:underline text-brand-blue"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPlayerPage(v.name);
+                        }}
+                      >
+                        {extractFirstTag(v.name)} {extractNameWithoutTag(v.name)}
                       </td>
+
                       <td className="px-2 py-1">
                         {v.weapon
                           .split(" ")
@@ -133,14 +152,21 @@ export default function SquadDetail({ squad, onVictimClick }) {
                           .join(" ")}
                       </td>
                       <td className="px-2 py-1">{v.distance}м</td>
-                      <td className="px-2 py-1 text-sm md:text-base font-semibold">
+
+                      {/* Убийца */}
+                      <td
+                        className="px-2 py-1 text-sm md:text-base font-semibold cursor-pointer hover:underline text-brand-blue"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPlayerPage(v.killer_name);
+                        }}
+                      >
                         {v.killer_tag
                           ? `[${v.killer_tag.toUpperCase()}] ${v.killer_name
                               .split(" ")
                               .map(
                                 (w) =>
-                                  w.charAt(0).toUpperCase() +
-                                  w.slice(1).toLowerCase()
+                                  w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
                               )
                               .join(" ")}`
                           : v.killer_name
@@ -151,8 +177,10 @@ export default function SquadDetail({ squad, onVictimClick }) {
                               )
                               .join(" ")}
                       </td>
+
                       <td className="px-2 py-1">
-                        {v.kill_type.charAt(0).toUpperCase() + v.kill_type.slice(1).toLowerCase()}
+                        {v.kill_type.charAt(0).toUpperCase() +
+                          v.kill_type.slice(1).toLowerCase()}
                       </td>
                     </tr>
                   ))}

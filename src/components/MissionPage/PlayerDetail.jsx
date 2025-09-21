@@ -1,10 +1,18 @@
 import React from "react";
+import { cleanPlayerName } from "../../cleanPlayerName";
 
 export default function PlayerDetail({ player, missionFile, onVictimClick }) {
   if (!player) return null;
 
   const handleVictimClick = (entity) => {
     if (onVictimClick) onVictimClick(entity);
+  };
+
+  const openPlayerPage = (nick) => {
+    const cleanName = cleanPlayerName(nick);
+    if (cleanName) {
+      window.open(`/player/${encodeURIComponent(cleanName)}`, "_blank");
+    }
   };
 
   const capitalize = (str) =>
@@ -28,7 +36,13 @@ export default function PlayerDetail({ player, missionFile, onVictimClick }) {
   return (
     <div className="p-4 bg-brand-black/40 rounded-lg space-y-4">
       <h3 className="text-lg font-bold text-brand-light mb-2">
-        {formatPlayerName(player.name, player.squad)} — детали
+        <span
+          className="cursor-pointer hover:underline text-brand-blue"
+          onClick={() => openPlayerPage(player.name)}
+        >
+          {formatPlayerName(player.name, player.squad)}
+        </span>{" "}
+        — детали
       </h3>
 
       {player.victims_players?.length > 0 && (
@@ -49,7 +63,16 @@ export default function PlayerDetail({ player, missionFile, onVictimClick }) {
                 className="cursor-pointer border-b border-brand-gray/50 hover:bg-brand-gray/70"
                 onClick={() => handleVictimClick(v)}
               >
-                <td className="px-2 py-1">{formatPlayerName(v.name, v.tag)}</td>
+                <td
+                  className="px-2 py-1 font-semibold text-brand-blue hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPlayerPage(v.name);
+                  }}
+                >
+                  {v.tag ? `[${v.tag.toUpperCase()}] ` : ""}
+                  {capitalize(v.name)}
+                </td>
                 <td className="px-2 py-1">{capitalize(v.weapon)}</td>
                 <td className="px-2 py-1">{v.distance} м</td>
                 <td className="px-2 py-1">{capitalize(v.kill_type)}</td>

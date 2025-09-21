@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import PlayerDetail from "./PlayerDetail";
+import { cleanPlayerName } from "../../cleanPlayerName";
 
 export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "1000px" }) {
   const { id } = useParams();
@@ -27,12 +28,6 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
     };
     fetchPlayers();
   }, [API_BASE_URL, id]);
-
-  useEffect(() => {
-    if (selectedPlayer && detailRef.current) {
-      // detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [selectedPlayer]);
 
   const capitalize = (str) =>
     str
@@ -81,6 +76,13 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
     if (valA === valB) return 0;
     return sortOrder === "asc" ? valA - valB : valB - valA;
   });
+
+  const handlePlayerClick = (nick) => {
+    const cleanName = cleanPlayerName(nick);
+    if (cleanName) {
+      window.open(`/player/${encodeURIComponent(cleanName)}`, "_blank");
+    }
+  };
 
   return (
     <div className="space-y-4 relative" style={{ width: fixedWidth }}>
@@ -151,9 +153,13 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
               <tr
                 key={player.id}
                 className="border-b border-brand-gray hover:bg-brand-gray/70 cursor-pointer"
-                onClick={() => setSelectedPlayer(player)}
               >
-                <td className="px-2 py-1 font-semibold">{capitalize(player.name)}</td>
+                <td
+                  className="px-2 py-1 font-semibold text-brand-blue hover:underline"
+                  onClick={() => handlePlayerClick(player.name)}
+                >
+                  {capitalize(player.name)}
+                </td>
                 <td className="px-2 py-1">{capitalize(player.squad)}</td>
                 <td className="px-2 py-1">{capitalize(player.side)}</td>
                 <td className="px-2 py-1">{player.frags}</td>

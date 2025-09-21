@@ -20,6 +20,17 @@ export default function MissionPage() {
   const [missionFile, setMissionFile] = useState(null);
   const [missionName, setMissionName] = useState("");
 
+  const [token, setToken] = useState({
+    urlOcap: null,
+    missionName: "",
+    killName: "",
+    killerName: "",
+    timeKill: "",
+    weapon: "",
+    distance: "",
+    idMission: null,
+  });
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -42,17 +53,27 @@ export default function MissionPage() {
         setOcapLink(
           `https://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077&t=${Date.now()}`
         );
+
+        setToken((prev) => ({
+          ...prev,
+          missionName: nameWithoutExt, 
+          urlOcap: `https://ocap.red-bear.ru/?file=${file}&frame=0&zoom=1.9&x=-128.077&y=128.077&t=${Date.now()}`,
+        }));
+
       } catch (err) {
         console.error("Ошибка загрузки:", err);
       } finally {
         setLoading(false);
-
-        console.log("goida")
       }
     };
 
     fetchData();
   }, [API_BASE_URL, id]);
+
+  useEffect(() => {
+    console.log("Token изменился:", token);
+  }, [token]);
+
 
   const grouped = useMemo(() => {
     return data.reduce((acc, squad) => {
@@ -70,6 +91,7 @@ export default function MissionPage() {
 
   const handleVictimClick = (payload) => {
     if (!missionFile) return;
+
     let newLink = "";
     if (typeof payload === "string") {
       newLink = payload.includes("http")
@@ -79,10 +101,29 @@ export default function MissionPage() {
       const frame = payload.frame ?? 0;
       const x = payload.position?.x ?? payload.killer_position?.x ?? 0;
       const y = payload.position?.y ?? payload.killer_position?.y ?? 0;
+
       newLink = `https://ocap.red-bear.ru/?file=${missionFile}&frame=${frame}&zoom=8&x=${x}&y=${y}&t=${Date.now()}`;
+
+      // ✅ обновляем token
+      setToken((prev) => ({
+        ...prev,
+        urlOcap: newLink,
+        missionName: missionName, // уже без .json
+        killName: payload.name ?? "", // имя жертвы
+        killerName: payload.killer_name ?? "", // имя убийцы
+        timeKill: payload.time ?? "", // время
+        weapon: payload.weapon ?? "", // оружие
+        distance: payload.distance ?? "", // дистанция
+        idMission: id, // id миссии из useParams()
+      }));
     }
+
     if (!newLink) return;
+
+    console.log("!!!!!!!!!!", JSON.stringify(payload, null, 2));
+
     setOcapLink(newLink);
+
     requestAnimationFrame(() => {
       const ocapElement = document.getElementById("ocap-viewer");
       if (ocapElement) {
@@ -90,6 +131,7 @@ export default function MissionPage() {
       }
     });
   };
+
 
   const killsChartData = useMemo(() => {
     const kills = [];

@@ -16,9 +16,11 @@ function MissionFilter({ filters, onSearch, onReset }) {
     setLocalFilters(filters);
   }, [filters]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   // Загружаем варианты фильтров с API
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/mission-filter")
+    fetch(`${API_BASE_URL}/api/mission-filter`)
       .then((res) => res.json())
       .then((data) => {
         if (data.mission_name) {

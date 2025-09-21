@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -7,8 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Roboto', 'Arial', 'sans-serif'],     
-        heading: ['Orbitron', 'sans-serif'],        
+        sans: ['Roboto', 'Arial', 'sans-serif'],  
+        heading: ['Roboto', 'sans-serif'],        
       },
       colors: {
         "brand-black": "#070707",
