@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 const menuItems = [
   { name: "Миссии", path: "/MissionList" },
   { name: "Поиск игроков", path: "/player-search" },
-  { name: "Лучшие игроки", path: "/contact" },
-  { name: "Лучшие отряды", path: "/contact" },
+  { name: "Лучшие игроки", path: "/player-top" },
+  { name: "Лучшие отряды", path: "/squad-top" },
 ];
 
 function Menu() {

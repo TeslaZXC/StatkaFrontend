@@ -18,7 +18,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Загружаем варианты фильтров с API
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/mission-filter`)
       .then((res) => res.json())
@@ -47,7 +46,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
   return (
     <div className="mb-10 relative">
       <div className="grid gap-4 md:grid-cols-5 mb-4">
-        {/* Тип игры */}
         <select
           value={localFilters.game_type}
           onChange={(e) => handleChange("game_type", e.target.value)}
@@ -61,7 +59,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
           ))}
         </select>
 
-        {/* Победившая сторона */}
         <select
           value={localFilters.win_side}
           onChange={(e) => handleChange("win_side", e.target.value)}
@@ -75,7 +72,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
           ))}
         </select>
 
-        {/* Мир */}
         <select
           value={localFilters.world_name}
           onChange={(e) => handleChange("world_name", e.target.value)}
@@ -89,7 +85,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
           ))}
         </select>
 
-        {/* Название миссии */}
         <div className="relative">
           <input
             type="text"
@@ -118,7 +113,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
           )}
         </div>
 
-        {/* Дата с календарём */}
         <DatePicker
           selected={localFilters.file_date ? new Date(localFilters.file_date) : null}
           onChange={(date) => {
@@ -135,7 +129,6 @@ function MissionFilter({ filters, onSearch, onReset }) {
         />
       </div>
 
-      {/* Кнопки */}
       <div className="flex gap-4 justify-center">
         <button
           onClick={() => onSearch(localFilters)}

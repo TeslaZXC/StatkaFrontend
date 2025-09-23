@@ -56,6 +56,7 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
     setSortOrder("desc");
     setFilter("all");
     setSearch("");
+    setSelectedPlayer(null);
   };
 
   const filteredPlayers = players.filter((p) => {
@@ -77,10 +78,16 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
     return sortOrder === "asc" ? valA - valB : valB - valA;
   });
 
-  const handlePlayerClick = (nick) => {
+  const openPlayerPage = (nick) => {
     const cleanName = cleanPlayerName(nick);
     if (cleanName) {
       window.open(`/player/${encodeURIComponent(cleanName)}`, "_blank");
+    }
+  };
+
+  const openSquadPage = (squad) => {
+    if (squad) {
+      window.open(`/squad/${encodeURIComponent(squad)}`, "_blank");
     }
   };
 
@@ -153,14 +160,26 @@ export default function PlayerTable({ onVictimClick, missionFile, fixedWidth = "
               <tr
                 key={player.id}
                 className="border-b border-brand-gray hover:bg-brand-gray/70 cursor-pointer"
+                onClick={() => setSelectedPlayer(player)}
               >
                 <td
                   className="px-2 py-1 font-semibold text-brand-blue hover:underline"
-                  onClick={() => handlePlayerClick(player.name)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPlayerPage(player.name);
+                  }}
                 >
                   {capitalize(player.name)}
                 </td>
-                <td className="px-2 py-1">{capitalize(player.squad)}</td>
+                <td
+                  className="px-2 py-1 text-brand-light hover:underline cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openSquadPage(player.squad);
+                  }}
+                >
+                  {capitalize(player.squad)}
+                </td>
                 <td className="px-2 py-1">{capitalize(player.side)}</td>
                 <td className="px-2 py-1">{player.frags}</td>
                 <td className="px-2 py-1">{player.frags_inf}</td>

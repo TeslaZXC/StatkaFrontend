@@ -5,7 +5,10 @@ import Home from "./pages/Home";
 import MissionList from "./pages/MissionList";
 import MissionPage from "./pages/MissionPage";
 import PlayerSearchPage from "./pages/PlayerSearchPage";
-import PlayerPage from "./pages/PlayerPage"; // 👈 подключаем страницу игрока
+import PlayerPage from "./pages/PlayerPage"; 
+import PlayerTopPage from "./pages/PlayerTopPage";
+import SquadPage from "./pages/SquadPage";
+import SquadTopPage from "./pages/SquadTopPage";
 
 function App() {
   return (
@@ -18,7 +21,10 @@ function App() {
           <Route path="/MissionList" element={<MissionList />} />
           <Route path="/mission/:id" element={<MissionPage />} />
           <Route path="/player-search" element={<PlayerSearchPage />} />
-          <Route path="/player/:name" element={<PlayerPage />} /> {/* 👈 новая страница */}
+          <Route path="/player/:name" element={<PlayerPage />} />
+          <Route path="/player-top" element={<PlayerTopPage />} />
+          <Route path="/squad/:tag" element={<SquadPage />} /> 
+          <Route path="/squad-top" element={<SquadTopPage />} /> 
         </Routes>
       </main>
     </Router>

@@ -16,13 +16,13 @@ function MissionList() {
   });
 
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const fetchMissions = (pageNum = 1, perPageNum = 10, appliedFilters = filters) => {
+  const fetchMissions = (pageNum = 1, perPageNum = 20, appliedFilters = filters) => {
     const query = Object.entries(appliedFilters)
       .filter(([_, value]) => value)
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -53,7 +53,7 @@ function MissionList() {
 
   const handleSearch = (newFilters) => {
     setFilters(newFilters);
-    fetchMissions(1, perPage, newFilters); // при поиске всегда с первой страницы
+    fetchMissions(1, perPage, newFilters);
   };
 
   const handleReset = () => {
@@ -95,37 +95,71 @@ function MissionList() {
           onSearch={handleSearch}
           onReset={handleReset}
         />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {missions.map((mission) => {
-            const totalMinutes = Math.floor(mission.duration_time);
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-            return (
-              <Link
-                key={mission.id}
-                to={`/mission/${mission.id}`} 
-                className="bg-brand-gray/90 rounded-xl shadow-lg p-6 hover:bg-brand-gray/80 transition-colors duration-200 flex flex-col justify-between cursor-pointer"
-                style={{ minHeight: "220px", maxHeight: "220px" }}
-              >
-                <h3 className="text-xl md:text-2xl font-heading text-brand-light mb-2 truncate">
-                  {mission.missionName}
-                </h3>
-                <p className="text-brand-muted text-sm mb-1 truncate">
-                  <span className="font-bold">Мир:</span> {mission.worldName}
-                </p>
-                <p className="text-brand-muted text-sm mb-1 truncate">
-                  <span className="font-bold">Тип игры:</span> {mission.game_type}
-                </p>
-                <p className="text-brand-muted text-sm mb-1 truncate">
-                  <span className="font-bold">Длительность миссии:</span>{" "}
-                  {hours > 0 ? `${hours} ч ` : ""}{minutes} мин
-                </p>
-                <p className="text-brand-muted text-sm truncate">
-                  <span className="font-bold">Победившая сторона:</span> {mission.win_side}
-                </p>
-              </Link>
-            );
-          })}
+
+        {/* Таблица миссий */}
+        <div className="overflow-x-auto">
+          <table className="w-full rounded-xl shadow-lg bg-brand-gray/90 text-white">
+            <thead>
+              <tr className="bg-brand-gray/80">
+                <th className="px-4 py-2 text-left">ID</th>
+                <th className="px-4 py-2 text-left">Дата файла</th>
+                <th className="px-4 py-2 text-left">Название миссии</th>
+                <th className="px-4 py-2 text-left">Мир</th>
+                <th className="px-4 py-2 text-left">Тип игры</th>
+                <th className="px-4 py-2 text-left">Победившая сторона</th>
+                <th className="px-4 py-2 text-left">Онлайн</th>
+              </tr>
+            </thead>
+            <tbody>
+              {missions.map((mission) => (
+                <tr
+                  key={mission.id}
+                  className="hover:bg-brand-gray/70 transition cursor-pointer"
+                >
+                  <td className="px-4 py-2">{mission.id}</td>
+                  <td className="px-4 py-2">{mission.file_date}</td>
+                  <td className="px-4 py-2">
+                    <Link
+                      to={`/mission/${mission.id}`}
+                      className="text-brand-red hover:underline"
+                    >
+                      {mission.missionName}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2">{mission.worldName}</td>
+                  <td className="px-4 py-2">{mission.game_type}</td>
+                  <td className="px-4 py-2">{mission.win_side}</td>
+                  <td className="px-4 py-2">
+                    {mission.players_count?.total} (
+                    {[
+                      mission.players_count?.WEST > 0 && (
+                        <span key="west" className="font-bold text-blue-400">
+                          {mission.players_count.WEST}
+                        </span>
+                      ),
+                      mission.players_count?.EAST > 0 && (
+                        <span key="east" className="font-bold text-red-400">
+                          {mission.players_count.EAST}
+                        </span>
+                      ),
+                      mission.players_count?.GUER > 0 && (
+                        <span key="guer" className="font-bold text-green-400">
+                          {mission.players_count.GUER}
+                        </span>
+                      ),
+                    ]
+                      .filter(Boolean)
+                      .reduce((acc, el, idx, arr) => [
+                        ...acc,
+                        el,
+                        idx < arr.length - 1 ? <span key={`sep-${idx}`}>/</span> : null,
+                      ], [])}
+                    )
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Пагинация */}

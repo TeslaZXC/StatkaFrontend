@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import SquadDetail from "./SquadDetail";
 
 export default function SquadTable({ squads, onVictimClick }) {
   const [expandedSquad, setExpandedSquad] = useState(null);
   const [sortColumn, setSortColumn] = useState("frags");
   const [sortOrder, setSortOrder] = useState("desc");
+
+  // текущий путь (чтобы подсветка сохранялась даже после обновления)
+  const location = useLocation();
+  const activeSquadTag = location.pathname.startsWith("/squad/")
+    ? location.pathname.split("/").pop()
+    : null;
 
   const handleSort = (column) => {
     if (!["frags", "death", "tk"].includes(column)) return;
@@ -28,6 +35,20 @@ export default function SquadTable({ squads, onVictimClick }) {
     if (valA === valB) return 0;
     return sortOrder === "asc" ? valA - valB : valB - valA;
   });
+
+  // выбор цвета по стороне
+  const getSquadColor = (side) => {
+    switch (side) {
+      case "WEST":
+        return "text-blue-400";
+      case "EAST":
+        return "text-red-400";
+      case "GUER":
+        return "text-green-400";
+      default:
+        return "text-brand-red";
+    }
+  };
 
   return (
     <div className="w-full flex flex-col">
@@ -81,7 +102,19 @@ export default function SquadTable({ squads, onVictimClick }) {
                     )
                   }
                 >
-                  <td className="px-3 py-2 font-semibold">{squad.squad_tag.toUpperCase()}</td>
+                  <td className="px-3 py-2 font-semibold">
+                    <a
+                      href={`/squad/${squad.squad_tag}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${getSquadColor(squad.side)} hover:underline ${
+                        activeSquadTag === squad.squad_tag ? "font-bold underline" : ""
+                      }`}
+                      onClick={(e) => e.stopPropagation()} // чтобы не срабатывал expand
+                    >
+                      {squad.squad_tag.toUpperCase()}
+                    </a>
+                  </td>
                   <td className="px-3 py-2">{squad.frags}</td>
                   <td className="px-3 py-2">{squad.death}</td>
                   <td className="px-3 py-2">{squad.tk}</td>

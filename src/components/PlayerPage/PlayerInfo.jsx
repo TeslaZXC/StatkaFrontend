@@ -98,26 +98,39 @@ export default function PlayerInfo({ player, selectedSquad, onSquadSelect }) {
         {/* Сквады */}
         <div className="mt-8">
           <p className="text-brand-muted mb-2">Сквады</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-4">
             {player.squads && player.squads.length > 0 ? (
               player.squads.map((squad) => (
-                <button
-                  key={squad}
-                  onClick={() => onSquadSelect(squad)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    selectedSquad === squad
-                      ? "bg-brand-red text-white"
-                      : "bg-brand-gray/70 text-brand-light hover:bg-brand-gray/90"
-                  }`}
-                >
-                  {squad.toUpperCase()}
-                </button>
+                <div key={squad} className="relative flex flex-col items-center group">
+                  {/* Кнопка перехода выше */}
+                  <div className="mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => window.open(`/squad/${squad}`, "_blank")}
+                      className="bg-brand-red text-white text-xs px-2 py-1 rounded"
+                    >
+                      Перейти
+                    </button>
+                  </div>
+
+                  {/* Кнопка сквада */}
+                  <button
+                    onClick={() => onSquadSelect(squad)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium ${
+                      selectedSquad === squad
+                        ? "bg-brand-red text-white"
+                        : "bg-brand-gray/70 text-brand-light hover:bg-brand-gray/90"
+                    }`}
+                  >
+                    {squad.toUpperCase()}
+                  </button>
+                </div>
               ))
             ) : (
               <p>Нет данных</p>
             )}
           </div>
         </div>
+
       </motion.div>
     </AnimatePresence>
   );
